@@ -4,7 +4,7 @@ How to use git?
 2. commit
 3. push
 
-1.git add xxx
+# xxxx
 2.git commit -m 'xxx'
 3.git push
 4.merge conflict
