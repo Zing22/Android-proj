@@ -3,5 +3,8 @@ How to use git?
 1. add something
 2. commit
 3. push
-4. pull
-5. test
+
+1.git add xxx
+2.git commit -m 'xxx'
+3.git push
+4.merge conflict
