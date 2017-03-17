@@ -8,3 +8,4 @@ How to use git?
 2.git commit -m 'xxx'
 3.git push
 4.merge conflict
+5.add,commit,push again
