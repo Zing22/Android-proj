@@ -4,3 +4,4 @@ How to use git?
 2. commit
 3. push
 4. pull
+5. test
