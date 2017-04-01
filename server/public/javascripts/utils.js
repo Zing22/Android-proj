@@ -7,8 +7,7 @@ function switch_page(url) {
     // 替换 #window
     $.get(url, function(data) {
         $('#window').html(data);
+        window.router = url;
+        window.decide_page();
     });
-
-    window.router = url;
-    window.decide_page();
 }

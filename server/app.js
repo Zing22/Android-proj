@@ -10,7 +10,6 @@ var index = require('./routes/index');
 
 // 主程序
 var app = express();
-var http = require('http');
 var utils = require('./utils.js');
 
 // 加载系统设置
@@ -62,7 +61,7 @@ app.set('port', port);
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+var server = require('http').createServer(app);
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -72,4 +71,12 @@ server.listen(port);
 server.on('error', utils.onError);
 server.on('listening', utils.onListening);
 
-module.exports = app;
+var io = require('socket.io').listen(server);
+
+
+module.exports = {
+    app: app,
+    io: io,
+};
+
+var socket = require('./socket.js');
