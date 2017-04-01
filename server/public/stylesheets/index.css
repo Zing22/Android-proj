@@ -1,0 +1,25 @@
+/* 
+为了实现单页面应用，只使用一个CSS
+每个选择器第一个class标明属于哪个页面
+*/
+
+/* index 页 */
+img.index {
+    margin-top: 70px;
+    margin-bottom: 70px;
+}
+
+/* rooms 页 */
+.rooms.list {
+    width: 100%;
+    height: auto;
+    padding-left: 50px;
+}
+
+.rooms.list > .item {
+    height: 50px;
+    width: 100%; /*其实会多出来，需要解决*/
+    box-sizing: border-box;
+    font-size: 20px;
+    line-height: 51px;
+}
