@@ -9,6 +9,12 @@ var Room = {
         room.size = function() {
             return room.players.length;
         }
+
+        room.setReady = function(user_id, ready) {
+            var i = room.players.findIndex(item => item.user_id == user_id);
+            room.players[i].ready = ready;
+            return true;
+        }
         return room;
     }
 }

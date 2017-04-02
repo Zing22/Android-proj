@@ -2,23 +2,21 @@ var app = require('./app.js').app;
 var io = require('./app.js').io;
 var game = require('./game.js');
 
-// console.log(require('./app.js'));
 
-// 这个函数的正确性，建立在每个socket只能在一个room中
+// 这个函数的正确性，建立在"每个socket只能在一个room中"之上
 var get_rooms_of = function(socket) {
-  return Object.keys(socket.rooms).filter(item => item!=socket.id);
+  return Object.keys(socket.rooms).filter(item => item != socket.id);
 }
 
 var update_room_info = function(socket) {
-  console.log(socket.rooms);
   var room_id = get_rooms_of(socket)[0];
-  console.log(room_id);
   io.in(room_id).emit('players info', game.rooms_pool[room_id].players);
 }
 
 io.sockets.on('connection', function(socket) {
   socket.emit('set username', {
-    num: Math.ceil(Math.random() * 2000)
+    num: Math.ceil(Math.random() * 2000),
+    user_id: socket.id
   });
 
   socket.emit('rooms list', game.rooms_pool);
@@ -36,7 +34,7 @@ io.sockets.on('connection', function(socket) {
   // 玩家点击加入房间
   socket.on('join room', function(data) {
     // 判断房间满不满
-    if(game.rooms_pool[data.room_id].size() >= 4) {
+    if (game.rooms_pool[data.room_id].size() >= 4) {
       socket.emit('room enter', '房间满啦');
     }
     socket.join(data.room_id);
@@ -51,6 +49,16 @@ io.sockets.on('connection', function(socket) {
     update_room_info(socket);
     // socket.emit('players info', game.rooms_pool[room_id].players);
   });
+
+  // 玩家准备 or 取消准备
+  socket.on('set ready', function(ready) {
+    var room_id = get_rooms_of(socket)[0];
+    var res = game.rooms_pool[room_id].setReady(socket.id, ready);
+    if(res) {
+      update_room_info(socket);
+    }
+  });
+
 
   // 断开连接
   socket.on('disconnect', function() {

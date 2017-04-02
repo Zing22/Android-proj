@@ -14,6 +14,7 @@ var rooms = function() {
   socket.on('set username', function(data) {
     console.log(data);
     window.username += '#' + data.num;
+    window.user_id = data.user_id;
   });
 
   socket.on('rooms list', function(rooms) {
@@ -24,7 +25,10 @@ var rooms = function() {
       var r = $('<div>').addClass('item').text(room.owner + ' 的房间 [' + room.players.length + '/4]');
       // 点击加入房间
       $(r).click(() => {
-        socket.emit('join room', {room_id: room.id, username: window.username});
+        socket.emit('join room', {
+          room_id: room.id,
+          username: window.username
+        });
       });
       $('.rooms.list').append(r);
       if (i) {
@@ -41,7 +45,7 @@ var rooms = function() {
 
   // 创建房间完成后，进入房间
   socket.on('room enter', function(ok) {
-    if(ok === true) {
+    if (ok === true) {
       window.switch_page('/singleRoom');
     } else {
       alert(ok);
@@ -62,7 +66,7 @@ var singleRoom = function() {
   $('.chessman').width(width / 2).height(width / 2).css('border-radius', width / 2);
 
   // 告诉服务器我进房间了，可以发送房间信息给我
-  console.log('In room...');
+  console.log('In room now');
   socket.emit('in room');
 
   const player_colors = ['green', 'red', 'blue', 'yellow'];
@@ -76,6 +80,21 @@ var singleRoom = function() {
       }
       name += players[i].username;
       $('.single-room.player.' + player_colors[i] + ' > .username').text(name);
+
+      if (players[i].user_id == window.user_id && !players[i].host) {
+        // 这就是我，而且不是房主
+        var $btn = $(".single-room.orange").removeClass('start-game');
+        if (players[i].ready) {
+          $btn.addClass('ready');
+          $btn.text('取消准备');
+        } else {
+          $btn.removeClass('ready');
+          $btn.text('准备');
+        }
+        $btn.click(function() {
+          socket.emit('set ready', !$(this).hasClass('ready'));
+        });
+      }
     }
   });
 }
