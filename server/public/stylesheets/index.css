@@ -22,4 +22,57 @@ img.index {
     box-sizing: border-box;
     font-size: 20px;
     line-height: 50px;
+    cursor: pointer;
+}
+
+.rooms.list > .item:hover {
+    background-color: var(--main-orange-o);
+}
+
+/* singleRoom 页 */
+.single-room.player {
+    box-sizing: border-box;
+    border: 1px solid black;
+    align-self: flex-start;
+    display: inline-block;
+
+}
+
+.single-room.player > .chessman {
+    border: 5px solid black;
+    margin: 22px auto;
+    box-shadow: 3px 5px 5px 1px #3f3f3f;
+}
+
+.single-room.player > .username {
+    width: 100%;
+    font-size: 20px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.single-room.player.green > .chessman {
+    border-color: var(--chess-green);
+}
+.single-room.player.red > .chessman {
+    border-color: var(--chess-red);
+}
+.single-room.player.blue > .chessman {
+    border-color: var(--chess-blue);
+}
+.single-room.player.yellow > .chessman {
+    border-color: var(--chess-yellow);
+}
+
+.single-room.player.green > .username {
+    color: var(--chess-green);
+}
+.single-room.player.red > .username {
+    color: var(--chess-red);
+}
+.single-room.player.blue > .username {
+    color: var(--chess-blue);
+}
+.single-room.player.yellow > .username {
+    color: var(--chess-yellow);
 }

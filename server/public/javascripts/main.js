@@ -15,17 +15,16 @@ var rooms = function() {
     console.log(data);
     window.username += '#' + data.num;
   });
-  socket.on('any', function(data) {
-    console.log(data);
-  });
 
   socket.on('rooms list', function(rooms) {
     $('.rooms.list *').remove();
     var keys = Object.keys(rooms);
     for (var i = keys.length - 1; i >= 0; i--) {
       var room = rooms[keys[i]];
-      var r = $('<div>').addClass('item').text(room.owner + ' 的房间 [' + room.players.length + '/4]').attr({
-        _id: room.id
+      var r = $('<div>').addClass('item').text(room.owner + ' 的房间 [' + room.players.length + '/4]');
+      // 点击加入房间
+      $(r).click(() => {
+        socket.emit('join room', {room_id: room.id, username: window.username});
       });
       $('.rooms.list').append(r);
       if (i) {
@@ -41,8 +40,43 @@ var rooms = function() {
   });
 
   // 创建房间完成后，进入房间
-  socket.on('room created', function(room) {
-    window.switch_page('/singleRoom');
+  socket.on('room enter', function(ok) {
+    if(ok === true) {
+      window.switch_page('/singleRoom');
+    } else {
+      alert(ok);
+    }
+  });
+}
+
+
+
+// singleRoom 页
+var singleRoom = function() {
+  // 计算每个玩家位的宽度
+  const player_border = 1;
+  var width = $('#window').width() / 2 - player_border * 2;
+  $('.single-room.player').width(width);
+  $('.single-room.player').height(width);
+
+  $('.chessman').width(width / 2).height(width / 2).css('border-radius', width / 2);
+
+  // 告诉服务器我进房间了，可以发送房间信息给我
+  console.log('In room...');
+  socket.emit('in room');
+
+  const player_colors = ['green', 'red', 'blue', 'yellow'];
+  socket.on('players info', function(players) {
+    for (var i = 0; i < players.length; i++) {
+      var name = '';
+      if (players[i].host) {
+        name = '[H]';
+      } else if (players[i].ready) {
+        name = '[RD]';
+      }
+      name += players[i].username;
+      $('.single-room.player.' + player_colors[i] + ' > .username').text(name);
+    }
   });
 }
 
@@ -51,13 +85,17 @@ var rooms = function() {
 // 切换路由对应功能
 window.decide_page = function() {
   // 移除所有socket监听
-  if(window.socket) {
+  if (window.socket) {
     window.socket.removeAllListeners();
   }
   if (window.router == '/index') {
     index();
   } else if (window.router == '/rooms') {
     rooms();
+  } else if (window.router == '/singleRoom') {
+    singleRoom();
+  } else {
+    alert('Unknow page!');
   }
 }
 
@@ -82,4 +120,9 @@ $(document).ready(function() {
   }
   init_window();
   window.decide_page();
+
+  // for drawing
+  var debug = function() {}
+
+  debug();
 });

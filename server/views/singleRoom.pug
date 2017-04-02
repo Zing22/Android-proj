@@ -1,8 +1,17 @@
-extends layout
-
-block stylesheet
-    link(rel='stylesheet', href='/stylesheets/index.css')
-
-block content
-    .title= title
-    .index.ui.btn.orange 这是单个房间
+.title= title
+.single-room.player.green
+    .chessman
+    .username 空位
+.single-room.player.red
+    .chessman
+    .username 空位
+.single-room.player.blue
+    .chessman
+    .username 空位
+.single-room.player.yellow
+    .chessman
+    .username 空位
+.ui.divider.hidden.big
+.ui.btn.orange.start-game 开始游戏
+.ui.divider.hidden
+.ui.btn.add-ai 添加AI
