@@ -22,7 +22,7 @@ var rooms = function() {
     var keys = Object.keys(rooms);
     for (var i = keys.length - 1; i >= 0; i--) {
       var room = rooms[keys[i]];
-      var r = $('<div>').addClass('item').text(room.owner + ' 的房间 [' + room.players.length + '/4]');
+      var r = $('<div>').addClass('item').text(room.owner + ' 的房间 [' + room.players.filter(item=>!item.empty).length + '/4]');
       // 点击加入房间
       $(r).click(() => {
         socket.emit('join room', {
@@ -66,12 +66,19 @@ var singleRoom = function() {
   $('.chessman').width(width / 2).height(width / 2).css('border-radius', width / 2);
 
   // 告诉服务器我进房间了，可以发送房间信息给我
-  console.log('In room now');
   socket.emit('in room');
 
+  // 这个顺序很有意思，应该从绿色开始，顺时针转，就是这样的顺序
   const player_colors = ['green', 'red', 'blue', 'yellow'];
   socket.on('players info', function(players) {
+    console.log(players);
     for (var i = 0; i < players.length; i++) {
+      // 空位
+      if (players[i].empty) {
+        $('.single-room.player.' + player_colors[i] + ' > .username').text('空位');
+        continue;
+      }
+      // 非空位
       var name = '';
       if (players[i].host) {
         name = '[H]';
@@ -81,7 +88,17 @@ var singleRoom = function() {
       name += players[i].username;
       $('.single-room.player.' + player_colors[i] + ' > .username').text(name);
 
-      if (players[i].user_id == window.user_id && !players[i].host) {
+      // 设置房间标题
+      if (players[i].host) {
+        $('.title').text(players[i].username + ' 的房间');
+      }
+
+      if (players[i].user_id == window.user_id) {
+        if (players[i].host) {
+          // 我是房主
+          $(".single-room.orange").addClass('start-game').text('开始游戏');
+          continue;
+        }
         // 这就是我，而且不是房主
         var $btn = $(".single-room.orange").removeClass('start-game');
         if (players[i].ready) {

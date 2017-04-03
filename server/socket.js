@@ -2,15 +2,20 @@ var app = require('./app.js').app;
 var io = require('./app.js').io;
 var game = require('./game.js');
 
-
 // 这个函数的正确性，建立在"每个socket只能在一个room中"之上
-var get_rooms_of = function(socket) {
-  return Object.keys(socket.rooms).filter(item => item != socket.id);
+var get_room_of = function(socket) {
+  // return Object.keys(socket.rooms).filter(item => item != socket.id);
+  return game.socket_in_room[socket.id];
 }
 
-var update_room_info = function(socket) {
-  var room_id = get_rooms_of(socket)[0];
-  io.in(room_id).emit('players info', game.rooms_pool[room_id].players);
+var update_room_info = function(socket, room_id) {
+  if(!room_id) {
+    room_id = get_room_of(socket);
+  }
+
+  if(game.rooms_pool[room_id]) {
+    io.in(room_id).emit('players info', game.rooms_pool[room_id].players);  
+  }
 }
 
 io.sockets.on('connection', function(socket) {
@@ -45,14 +50,14 @@ io.sockets.on('connection', function(socket) {
 
   // 玩家加载完房间页面
   socket.on('in room', function() {
-    var room_id = get_rooms_of(socket)[0];
+    var room_id = get_room_of(socket);
     update_room_info(socket);
     // socket.emit('players info', game.rooms_pool[room_id].players);
   });
 
   // 玩家准备 or 取消准备
   socket.on('set ready', function(ready) {
-    var room_id = get_rooms_of(socket)[0];
+    var room_id = get_room_of(socket);
     var res = game.rooms_pool[room_id].setReady(socket.id, ready);
     if(res) {
       update_room_info(socket);
@@ -62,8 +67,11 @@ io.sockets.on('connection', function(socket) {
 
   // 断开连接
   socket.on('disconnect', function() {
-    var room_id = get_rooms_of(socket)[0];
-    game.leaveRoom(socket.id, room_id);
+    var room_id = get_room_of(socket);
+    var change = game.leaveRoom(socket.id, room_id);
     console.log(socket.id + ' disconnected.');
+    if (change) {
+      update_room_info(socket, room_id);
+    }
   });
 });
