@@ -2,7 +2,7 @@ var app = require('./app.js').app;
 var io = require('./app.js').io;
 var game = require('./game.js');
 
-// 这个函数的正确性，建立在"每个socket只能在一个room中"之上
+// 每个socket只能在一个room中
 var get_room_of = function(socket) {
   // return Object.keys(socket.rooms).filter(item => item != socket.id);
   return game.socket_in_room[socket.id];
@@ -62,6 +62,44 @@ io.sockets.on('connection', function(socket) {
     if(res) {
       update_room_info(socket);
     }
+  });
+
+
+  // 玩家点击 开始游戏
+  socket.on('wanna start game', function() {
+    if(game.start_game(get_room_of(socket))) {
+      socket.emit('game started');
+    } else {
+      socket.emit('game not ready');
+    }
+  });
+
+
+  // 玩家加载完游戏界面
+  socket.on('game loaded', function() {
+    var room_id = get_room_of(socket);
+    var turn = game.set_gaming(socket.id, room_id);
+    if(turn !== -1) {
+      var player = game.turn_to_user_id(room_id, turn);
+      io.in(player).emit('my turn');
+    }
+  });
+
+
+  // 玩家要掷骰子
+  socket.on('wanna dice', function() {
+    var room_id = get_room_of(socket);
+    io.in(room_id).emit('dice result', {
+      dice: game.random_dice(room_id),
+      player: game.now_turn(room_id),
+    });
+  });
+
+
+  // 玩家选择移动棋子
+  socket.on('move chessman', function() {
+    var room_id = get_room_of(socket);
+    // TODO
   });
 
 

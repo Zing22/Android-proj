@@ -20,5 +20,10 @@ router.get('/singleRoom', (req, res, next) => {
   });
 });
 
+router.get('/game', (req, res, next) => {
+  res.render('game', {
+    title: '游戏'
+  });
+});
 
 module.exports = router;

@@ -76,3 +76,41 @@ img.index {
 .single-room.player.yellow > .username {
     color: var(--chess-yellow);
 }
+
+/* game 页 */
+.game.board {
+    background-image: url('/images/game.png');
+    background-size: 100% 100%;
+    position: relative;
+}
+
+.game.dice:not(.active) {
+    filter: opacity(0.4);
+}
+
+/*棋子们*/
+.game.chessman {
+    box-sizing: border-box;
+    border: 3px solid black;
+    box-shadow: 1px 3px 3px 1px #3f3f3f;
+    background-color: white;
+    position: absolute;
+}
+
+.game.chessman.active {
+    cursor: pointer;
+}
+
+.game.chessman.green {
+    border-color: var(--chess-green);
+}
+
+.game.chessman.green.num-0 {
+    top: 6%;
+    left: 7%;
+}
+
+.game.chessman.ready-green {
+    top: 25%;
+    left: 4%;
+}
