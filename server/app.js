@@ -4,6 +4,7 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var favicon = require('serve-favicon');
 
 // 子页面们
 var index = require('./routes/index');
@@ -14,6 +15,9 @@ var utils = require('./utils.js');
 
 // 加载系统设置
 var config = require('./config.js');
+
+// 网页logo
+app.use(favicon(path.join(__dirname,'public','images','favicon.ico')));
 
 // 页面模板
 app.set('views', path.join(__dirname, 'views'));

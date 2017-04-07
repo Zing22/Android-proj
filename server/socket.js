@@ -65,6 +65,14 @@ io.sockets.on('connection', function(socket) {
   });
 
 
+  // 玩家发送聊天信息
+  socket.on('chat send', function(msg) {
+    // 转发给房间里所有人
+    room_id = get_room_of(socket);
+    io.in(room_id).emit('chat msg', msg); // 包括自己
+  });
+
+
   // 玩家点击 开始游戏
   socket.on('wanna start game', function() {
     if(game.start_game(get_room_of(socket))) {
@@ -107,9 +115,12 @@ io.sockets.on('connection', function(socket) {
   socket.on('disconnect', function() {
     var room_id = get_room_of(socket);
     var change = game.leaveRoom(socket.id, room_id);
-    console.log(socket.id + ' disconnected.');
+    console.log(socket.id + ' disconnected.' + change);
     if (change) {
+      // 通知一下在房间里的人
       update_room_info(socket, room_id);
+      // 群发一下房间列表
+      io.emit('rooms list', game.rooms_pool);
     }
   });
 });

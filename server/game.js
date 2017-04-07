@@ -118,8 +118,9 @@ var leaveRoom = function(user_id, room_id) {
     }
     delete socket_in_room[user_id];
     return true;
+  } else {
+    return false;
   }
-  return false;
 }
 
 

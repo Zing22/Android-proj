@@ -5,17 +5,19 @@
   --chess-yellow: #d6ba73;
   --main-orange: #FFA726;
   --main-orange-o: rgba(255,167,38,0.2);
+  --main-black-o: rgba(0,0,0,0.05);
 }
 
 body {
   margin: 0;
   font: 14px "Lucida Grande", "Microsoft YaHei", Helvetica, Arial, sans-serif;
+  background-image: url('/images/background.jpg');
 }
 
 #window {
-  border: 5px solid black;
+  /*border: 5px solid black;*/
   border-radius: 5px;
-  box-sizing: border-box;
+  /*box-sizing: border-box;*/
   margin: 0 auto;
 
   display: flex;
@@ -25,8 +27,10 @@ body {
   align-content: flex-start;
   flex-wrap: wrap;
 
-
+  background-color: white;
   overflow: hidden;
+
+  position: relative;
 }
 
 #window .title {
@@ -37,4 +41,109 @@ body {
   line-height: 50px;
   background: #E0E0E0;
   border-bottom: 1px solid lightgrey;
+}
+
+.title > .icons {
+  height: 50px;
+  width: 50px;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+.title > .icons:hover {
+  background-color: rgba(255,255,255,0.2);
+}
+
+/* 用来占位 */
+.title > .nothing {
+  float: left;
+  cursor: default;
+}
+.title > .nothing:hover {
+  background-color: inherit;
+}
+
+.title > .return {
+  margin-top: 3px;
+  margin-left: 3px;
+  
+  display: inline;
+
+  background-image: url('/images/logos/left arrow.png');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+
+  float: left;
+}
+
+.title > .settings {
+  margin-top: 3px;
+  margin-right: 3px;
+  
+  display: inline;
+
+  background-image: url('/images/logos/settings.png');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+
+  float: right;
+}
+
+
+/* 聊天框 */
+.chat.box {
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    border: 10px solid #E0E0E0;
+    border-radius: 6px;
+    padding: 10px 10px;
+
+    position: relative;
+    left: 0;
+    top: 0;
+}
+.chat.list {
+    width: 100%;
+    height: 70%;
+    overflow-y: auto;
+    -ms-overflow-style: none;
+    overflow: -moz-scrollbars-none;
+}
+.chat.list::-webkit-scrollbar { 
+    display: none;
+}
+
+.chat.list > .item {
+    width: 100%;
+    height: 33px;
+    font-size: 22px;
+    line-height: 33px;
+    text-align: left;
+
+    padding: 0 10px;
+    background-color: var(--main-black-o);
+}
+
+.chat.list > .item.odd {
+    background-color: var(--main-orange-o);
+}
+
+.chat.input {
+    width: 100%;
+    height: 30px;
+    font-size: 20px;
+    line-height: 30px;
+
+    padding: 0 10px;
+
+    border: 0.5px solid lightgrey;
+    border-radius: 3px;
+
+    box-sizing: border-box;
+
+    display: inline-block;'
+
+    position: absolute;
+    left: 0;
+    bottom: 0;
 }

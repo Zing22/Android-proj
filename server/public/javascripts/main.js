@@ -59,7 +59,7 @@ var rooms = function() {
 var singleRoom = function() {
   // 计算每个玩家位的宽度
   const player_border = 1;
-  var width = $('#window').width() / 2 - player_border * 2;
+  var width = $('#window').width() / 4 - player_border * 2;
   $('.single-room.player').width(width);
   $('.single-room.player').height(width);
 
@@ -117,7 +117,9 @@ var singleRoom = function() {
 
   // 点击开始游戏
   $('.single-room.start-game').click(function(event) {
-    socket.emit('wanna start game');
+    if($(this).hasClass('start-game')) {
+      socket.emit('wanna start game');
+    }
   });
 
   // 服务器返回是否可以开始游戏
@@ -128,20 +130,32 @@ var singleRoom = function() {
     // 切换到game页
     window.switch_page('/game');
   });
+
+
+  // 启动聊天功能
+  chat();
 }
-
-
 
 // game 页
 var game = function() {
   // 调整页面宽度
   var width = $('#window').width();
-  $('.game.board').width(width).height(width);
+  var board_width = width * 0.7;
+  $('.game.board').width(board_width).height(board_width);
   const chessman_div_borad = 0.04; // 棋子多宽
   // 调整棋子宽度
-  $('.game.chessman').width(width * chessman_div_borad)
-    .height(width * chessman_div_borad)
-    .css('border-radius', width * chessman_div_borad);
+  $('.game.chessman').width(board_width * chessman_div_borad)
+    .height(board_width * chessman_div_borad)
+    .css('border-radius', board_width * chessman_div_borad);
+
+  var task_width = width * (1 - 0.7);
+  // 设置任务栏宽高
+  $('.game.tasks-list').width(task_width).height(board_width);
+  var chat_height = $('#window').height() - $('#window > .title').height() - board_width;
+  // 设置棋子detail的宽高
+  $('.game.chess-detail').width(board_width).height(chat_height);
+  // 设置聊天框
+  $('.game.chat-area').width(task_width).height(chat_height);
 
   socket.emit('game loaded');
 
@@ -213,9 +227,9 @@ $(document).ready(function() {
   window.username = 'Zing'; // 目前不实现设置页
   window.router = '/index';
 
-  const max_width = 760;
-  const window_ratio = 16.0 / 9;
-  const border_width = 5;
+  const max_width = 2048;
+  const window_ratio = 1/1;
+  const border_width = 0;
 
   function init_window() {
     var width = Math.min($(window).width(), max_width);
@@ -225,6 +239,7 @@ $(document).ready(function() {
 
     $("#window").width(width);
     $("#window").height(height);
+
   }
   init_window();
   window.decide_page();

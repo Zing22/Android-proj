@@ -3,13 +3,17 @@
 每个选择器第一个class标明属于哪个页面
 */
 
-/* index 页 */
+/*** index 页 ***/
+.index.logo {
+    width: 100%;
+    text-align: center;
+}
 img.index {
     margin-top: 70px;
     margin-bottom: 70px;
 }
 
-/* rooms 页 */
+/*** rooms 页 ***/
 .rooms.list {
     width: 100%;
     height: auto;
@@ -29,19 +33,24 @@ img.index {
     background-color: var(--main-orange-o);
 }
 
-/* singleRoom 页 */
+/*** singleRoom 页 ***/
 .single-room.player {
     box-sizing: border-box;
-    border: 1px solid black;
+    border-left: 0.5px solid #E0E0E0;
+    border-right: 0.5px solid #E0E0E0;
     align-self: flex-start;
     display: inline-block;
-
 }
 
 .single-room.player > .chessman {
     border: 5px solid black;
     margin: 22px auto;
     box-shadow: 3px 5px 5px 1px #3f3f3f;
+
+    background-image: url('/images/logos/paper plane.png');
+    background-position: center;
+    background-size: 70% 70%;
+    background-repeat: no-repeat;
 }
 
 .single-room.player > .username {
@@ -77,15 +86,36 @@ img.index {
     color: var(--chess-yellow);
 }
 
-/* game 页 */
+.single-room.chat-area {
+    height: 200px;
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+
+/*** game 页 ***/
 .game.board {
-    background-image: url('/images/game.png');
+    background-image: url('/images/game_board.png');
     background-size: 100% 100%;
     position: relative;
 }
 
 .game.dice:not(.active) {
     filter: opacity(0.4);
+}
+
+.game.tasks-list {
+    background-color: var(--main-black-o);
+}
+
+.game.chess-detail {
+    background-color: var(--main-black-o);
+}
+
+.game.chat-area {
+    position: relative;
 }
 
 /*棋子们*/
@@ -95,6 +125,11 @@ img.index {
     box-shadow: 1px 3px 3px 1px #3f3f3f;
     background-color: white;
     position: absolute;
+
+    background-image: url('/images/logos/paper plane.png');
+    background-position: center;
+    background-size: 80% 80%;
+    background-repeat: no-repeat;
 }
 
 .game.chessman.active {
@@ -104,13 +139,424 @@ img.index {
 .game.chessman.green {
     border-color: var(--chess-green);
 }
-
-.game.chessman.green.num-0 {
-    top: 6%;
-    left: 7%;
+.game.chessman.red {
+    border-color: var(--chess-red);
+}
+.game.chessman.blue {
+    border-color: var(--chess-blue);
+}
+.game.chessman.yellow {
+    border-color: var(--chess-yellow);
 }
 
-.game.chessman.ready-green {
-    top: 25%;
-    left: 4%;
+/* 绿色棋子初始位置 */
+.game.chessman.green.num-0 {
+    top: 6.4%;
+    left: 7.2%;
+}
+.game.chessman.green.num-1 {
+    top: 6.4%;
+    left: 17%;
+}
+.game.chessman.green.num-2 {
+    top: 16%;
+    left: 7.3%;
+}
+.game.chessman.green.num-3 {
+    top: 16%;
+    left: 17%;
+}
+/* 红色棋子初始位置 */
+.game.chessman.red.num-0 {
+    top: calc(6.4% + 0.4%);
+    left: calc(7.2% + 71.1%);
+}
+.game.chessman.red.num-1 {
+    top: calc(6.4% + 0.4%);
+    left: calc(17% + 71.1%);
+}
+.game.chessman.red.num-2 {
+    top: calc(16% + 0.3%);
+    left: calc(7.3% + 71.1%);
+}
+.game.chessman.red.num-3 {
+    top: calc(16% + 0.3%);
+    left: calc(17% + 71.1%);
+}
+/* 蓝色棋子初始位置 */
+.game.chessman.blue.num-0 {
+    top: calc(6.4% + 71.1%);
+    left: calc(7.2% + 70.7%);
+}
+.game.chessman.blue.num-1 {
+    top: calc(6.4% + 71.1%);
+    left: calc(17% + 70.7%);
+}
+.game.chessman.blue.num-2 {
+    top: calc(16% + 71.1%);
+    left: calc(7.1% + 70.7%);
+}
+.game.chessman.blue.num-3 {
+    top: calc(16% + 71.1%);
+    left: calc(17% + 70.7%);
+}
+/* 黄色棋子初始位置 */
+.game.chessman.yellow.num-0 {
+    top: calc(6.4% + 71.1%);
+    left: calc(7% + 0.2%);
+}
+.game.chessman.yellow.num-1 {
+    top: calc(6.4% + 71.1%);
+    left: calc(17% + 0.2%);
+}
+.game.chessman.yellow.num-2 {
+    top: calc(16% + 71.1%);
+    left: calc(7.3% + 0.1%);
+}
+.game.chessman.yellow.num-3 {
+    top: calc(16% + 71.1%);
+    left: calc(17% + 0.2%);
+}
+
+/* 棋子到达后 */
+.game.chessman.green.arrived {
+    border-color: #94CF92;
+    background-color: #94CF92;
+}
+.game.chessman.red.arrived {
+    border-color: #E7574E;
+    background-color: #E7574E;
+}
+.game.chessman.blue.arrived {
+    border-color: #73A2D0;
+    background-color: #73A2D0;
+}
+.game.chessman.yellow.arrived {
+    border-color: #D9C07F;
+    background-color: #D9C07F;
+}
+
+/* 棋盘四个颜色的准备点 */
+.game.chessman.green.ready {
+    top: 25.4%;
+    left: 4.2%;
+}
+.game.chessman.red.ready {
+    top: 25.8%;
+    left: 90.4%;
+}
+.game.chessman.blue.ready {
+    top: 68.5%;
+    left: 90.4%;
+}
+.game.chessman.yellow.ready {
+    top: 68.5%;
+    left: 4.2%;
+}
+
+/* 这是棋盘跑道上的点，你无法想象我经历了什么 */
+.game.chessman.pos-0 {
+    top: 28%;
+    left: 14.8%;
+}
+.game.chessman.pos-1 {
+    top: 28%;
+    left: 20.3%;
+}
+.game.chessman.pos-2 {
+    top: 30%;
+    left: 26%;
+}
+.game.chessman.pos-3 {
+    top: 26%;
+    left: 30.5%;
+}
+.game.chessman.pos-4 {
+    top: 19.7%;
+    left: 28.5%;
+}
+.game.chessman.pos-5 {
+    top: 14.4%;
+    left: 28.5%;
+}
+.game.chessman.pos-6 {
+    top: 8.4%;
+    left: 30.5%;
+}
+.game.chessman.pos-7 {
+    top: 6.3%;
+    left: 36.5%;
+}
+.game.chessman.pos-8 {
+    top: 6.3%;
+    left: 42.1%;
+}
+.game.chessman.pos-9 {
+    top: 6.3%;
+    left: 47.6%;
+}
+.game.chessman.pos-10 {
+    top: 6.3%;
+    left: 53%;
+}
+.game.chessman.pos-11 {
+    top: 6.3%;
+    left: 58.2%;
+}
+.game.chessman.pos-12 {
+    top: 8.3%;
+    left: 64.2%;
+}
+.game.chessman.pos-13 {
+    top: 14.6%;
+    left: 66.5%;
+}
+.game.chessman.pos-14 {
+    top: 20%;
+    left: 66.5%;
+}
+.game.chessman.pos-15 {
+    top: 26%;
+    left: 64.5%;
+}
+.game.chessman.pos-16 {
+    top: 30.3%;
+    left: 68.5%;
+}
+.game.chessman.pos-17 {
+    top: 28.3%;
+    left: 74.8%;
+}
+.game.chessman.pos-18 {
+    top: 28.3%;
+    left: 80.2%;
+}
+.game.chessman.pos-19 {
+    top: 30.5%;
+    left: 86%;
+}
+.game.chessman.pos-20 {
+    top: 36.4%;
+    left: 88%;
+}
+.game.chessman.pos-21 {
+    top: 41.7%;
+    left: 88%;
+}
+.game.chessman.pos-22 {
+    top: 47%;
+    left: 88%;
+}
+.game.chessman.pos-23 {
+    top: 52.5%;
+    left: 88%;
+}
+.game.chessman.pos-24 {
+    top: 57.9%;
+    left: 88%;
+}
+.game.chessman.pos-25 {
+    top: 63.9%;
+    left: 86%;
+}
+.game.chessman.pos-26 {
+    top: 66%;
+    left: 80%;
+}
+.game.chessman.pos-27 {
+    top: 66%;
+    left: 74.7%;
+}
+.game.chessman.pos-28 {
+    top: 64%;
+    left: 68.7%;
+}
+.game.chessman.pos-29 {
+    top: 68.2%;
+    left: 64.2%;
+}
+.game.chessman.pos-30 {
+    top: 74.2%;
+    left: 66.7%;
+}
+.game.chessman.pos-31 {
+    top: 79.7%;
+    left: 66.7%;
+}
+.game.chessman.pos-32 {
+    top: 85.7%;
+    left: 64.2%;
+}
+.game.chessman.pos-33 {
+    top: 88%;
+    left: 58.3%;
+}
+.game.chessman.pos-34 {
+    top: 88%;
+    left: 52.9%;
+}
+.game.chessman.pos-35 {
+    top: 88%;
+    left: 47.5%;
+}
+.game.chessman.pos-36 {
+    top: 88%;
+    left: 42.1%;
+}
+.game.chessman.pos-37 {
+    top: 88%;
+    left: 36.7%;
+}
+.game.chessman.pos-38 {
+    top: 86%;
+    left: 30.7%;
+}
+.game.chessman.pos-39 {
+    top: 79.8%;
+    left: 28.7%;
+}
+.game.chessman.pos-40 {
+    top: 74.2%;
+    left: 28.7%;
+}
+.game.chessman.pos-41 {
+    top: 68.2%;
+    left: 30.7%;
+}
+.game.chessman.pos-42 {
+    top: 64.5%;
+    left: 25.9%;
+}
+.game.chessman.pos-43 {
+    top: 66.2%;
+    left: 20.2%;
+}
+.game.chessman.pos-44 {
+    top: 66.2%;
+    left: 14.8%;
+}
+.game.chessman.pos-45 {
+    top: 64.2%;
+    left: 8.8%;
+}
+.game.chessman.pos-46 {
+    top: 58.2%;
+    left: 6.8%;
+}
+.game.chessman.pos-47 {
+    top: 52.6%;
+    left: 6.8%;
+}
+.game.chessman.pos-48 {
+    top: 47.1%;
+    left: 6.8%;
+}
+.game.chessman.pos-49 {
+    top: 41.7%;
+    left: 6.8%;
+}
+.game.chessman.pos-50 {
+    top: 36.2%;
+    left: 6.8%;
+}
+.game.chessman.pos-51 {
+    top: 30.7%;
+    left: 8.8%;
+}
+/*直道上的*/
+.game.chessman.pos-52 {
+    top: 47.1%;
+    left: 14.9%;
+}
+.game.chessman.pos-56 {
+    top: 47.1%;
+    left: 20.5%;
+}
+.game.chessman.pos-60 {
+    top: 47.1%;
+    left: 25.9%;
+}
+.game.chessman.pos-64 {
+    top: 47.1%;
+    left: 31.3%;
+}
+.game.chessman.pos-68 {
+    top: 47.1%;
+    left: 36.7%;
+}
+.game.chessman.pos-72 {
+    top: 47.1%;
+    left: 42.1%;
+}
+.game.chessman.pos-53 {
+    top: 15.3%;
+    left: 47.6%;
+}
+.game.chessman.pos-57 {
+    top: 20.6%;
+    left: 47.6%;
+}
+.game.chessman.pos-61 {
+    top: 26.1%;
+    left: 47.6%;
+}
+.game.chessman.pos-65 {
+    top: 31.4%;
+    left: 47.6%;
+}
+.game.chessman.pos-69 {
+    top: 36.6%;
+    left: 47.6%;
+}
+.game.chessman.pos-73 {
+    top: 41.8%;
+    left: 47.6%;
+}
+.game.chessman.pos-54 {
+    top: 47%;
+    left: 79%;
+}
+.game.chessman.pos-58 {
+    top: 47%;
+    left: 73.8%;
+}
+.game.chessman.pos-62 {
+    top: 47%;
+    left: 68.6%;
+}
+.game.chessman.pos-66 {
+    top: 47%;
+    left: 63.4%;
+}
+.game.chessman.pos-70 {
+    top: 47%;
+    left: 58.2%;
+}
+.game.chessman.pos-74 {
+    top: 47%;
+    left: 53%;
+}
+.game.chessman.pos-55 {
+    top: 80%;
+    left: 47.5%;
+}
+.game.chessman.pos-59 {
+    top: 74.6%;
+    left: 47.5%;
+}
+.game.chessman.pos-63 {
+    top: 69.2%;
+    left: 47.5%;
+}
+.game.chessman.pos-67 {
+    top: 63.8%;
+    left: 47.5%;
+}
+.game.chessman.pos-71 {
+    top: 58.4%;
+    left: 47.5%;
+}
+.game.chessman.pos-75 {
+    top: 53%;
+    left: 47.5%;
 }
