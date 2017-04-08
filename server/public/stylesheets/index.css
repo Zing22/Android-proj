@@ -130,12 +130,10 @@ img.index {
     background-position: center;
     background-size: 80% 80%;
     background-repeat: no-repeat;
-}
 
-.game.chessman.active {
-    cursor: pointer;
+    -webkit-transition: top 0.27s, left 0.27s;
 }
-
+/* 棋子颜色 */
 .game.chessman.green {
     border-color: var(--chess-green);
 }
@@ -150,70 +148,70 @@ img.index {
 }
 
 /* 绿色棋子初始位置 */
-.game.chessman.green.num-0 {
+.game.chessman.green.num-0.not-ready {
     top: 6.4%;
     left: 7.2%;
 }
-.game.chessman.green.num-1 {
+.game.chessman.green.num-1.not-ready {
     top: 6.4%;
     left: 17%;
 }
-.game.chessman.green.num-2 {
+.game.chessman.green.num-2.not-ready {
     top: 16%;
     left: 7.3%;
 }
-.game.chessman.green.num-3 {
+.game.chessman.green.num-3.not-ready {
     top: 16%;
     left: 17%;
 }
 /* 红色棋子初始位置 */
-.game.chessman.red.num-0 {
+.game.chessman.red.num-0.not-ready {
     top: calc(6.4% + 0.4%);
     left: calc(7.2% + 71.1%);
 }
-.game.chessman.red.num-1 {
+.game.chessman.red.num-1.not-ready {
     top: calc(6.4% + 0.4%);
     left: calc(17% + 71.1%);
 }
-.game.chessman.red.num-2 {
+.game.chessman.red.num-2.not-ready {
     top: calc(16% + 0.3%);
     left: calc(7.3% + 71.1%);
 }
-.game.chessman.red.num-3 {
+.game.chessman.red.num-3.not-ready {
     top: calc(16% + 0.3%);
     left: calc(17% + 71.1%);
 }
 /* 蓝色棋子初始位置 */
-.game.chessman.blue.num-0 {
+.game.chessman.blue.num-0.not-ready {
     top: calc(6.4% + 71.1%);
     left: calc(7.2% + 70.7%);
 }
-.game.chessman.blue.num-1 {
+.game.chessman.blue.num-1.not-ready {
     top: calc(6.4% + 71.1%);
     left: calc(17% + 70.7%);
 }
-.game.chessman.blue.num-2 {
+.game.chessman.blue.num-2.not-ready {
     top: calc(16% + 71.1%);
     left: calc(7.1% + 70.7%);
 }
-.game.chessman.blue.num-3 {
+.game.chessman.blue.num-3.not-ready {
     top: calc(16% + 71.1%);
     left: calc(17% + 70.7%);
 }
 /* 黄色棋子初始位置 */
-.game.chessman.yellow.num-0 {
+.game.chessman.yellow.num-0.not-ready {
     top: calc(6.4% + 71.1%);
     left: calc(7% + 0.2%);
 }
-.game.chessman.yellow.num-1 {
+.game.chessman.yellow.num-1.not-ready {
     top: calc(6.4% + 71.1%);
     left: calc(17% + 0.2%);
 }
-.game.chessman.yellow.num-2 {
+.game.chessman.yellow.num-2.not-ready {
     top: calc(16% + 71.1%);
     left: calc(7.3% + 0.1%);
 }
-.game.chessman.yellow.num-3 {
+.game.chessman.yellow.num-3.not-ready {
     top: calc(16% + 71.1%);
     left: calc(17% + 0.2%);
 }
@@ -559,4 +557,92 @@ img.index {
 .game.chessman.pos-75 {
     top: 53%;
     left: 47.5%;
+}
+
+/* 骰子 */
+.game.dice-box {
+    box-sizing: border-box;
+    border: 3px solid lightgrey;
+    box-shadow: 1px 3px 3px 1px #3f3f3f;
+
+    background-color: white;
+    position: absolute;
+    top: 41.9%;
+    left: 42%;
+
+    display: none;
+}
+
+.game.dice-box > .dice {
+    width: 50%;
+    height: 50%;
+
+    margin: 25% auto;
+
+    /*background-color: lightgrey;*/
+    background-image: url('/images/dice/waiting.gif');
+    background-size: 100% 100%;
+}
+
+/*各个点数的骰子*/
+.game.dice-box > .dice.dice-1 {
+    background-image: url('/images/dice/1.png');
+}
+.game.dice-box > .dice.dice-2 {
+    background-image: url('/images/dice/2.png');
+}
+.game.dice-box > .dice.dice-3 {
+    background-image: url('/images/dice/3.png');
+}
+.game.dice-box > .dice.dice-4 {
+    background-image: url('/images/dice/4.png');
+}
+.game.dice-box > .dice.dice-5 {
+    background-image: url('/images/dice/5.png');
+}
+.game.dice-box > .dice.dice-6 {
+    background-image: url('/images/dice/6.png');
+}
+
+
+@-webkit-keyframes twinkling{
+    0%{
+        box-shadow: 0px 0px 7px 3px var(--main-orange-o);
+    }
+    50% {
+        box-shadow: 0px 0px 7px 10px var(--main-orange-o);
+    }
+    100%{
+        box-shadow: 0px 0px 7px 3px var(--main-orange-o);
+    }
+}
+
+.game.dice-box.active {
+    border-color: var(--main-orange);
+    
+    -webkit-animation: twinkling 1s infinite ease-in-out;
+    cursor: pointer;
+}
+
+.game.dice-box.active:hover {
+    box-shadow: 0px 0px 7px 10px var(--main-orange-o);
+    -webkit-animation: none;
+}
+
+@-webkit-keyframes twinkling-chess{
+    0%{
+        box-shadow: 1px 3px 3px 1px #3f3f3f;
+    }
+    50% {
+        box-shadow: 1px 3px 3px 5px #777777;
+    }
+    100%{
+        box-shadow: 1px 3px 3px 1px #3f3f3f;
+    }
+}
+
+/* 可以点击的棋子 */
+.game.chessman.active {
+    cursor: pointer;
+    -webkit-animation: twinkling-chess 1s infinite ease-in-out;
 }

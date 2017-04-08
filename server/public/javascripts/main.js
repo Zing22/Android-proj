@@ -48,7 +48,7 @@ var rooms = function() {
     if (ok === true) {
       window.switch_page('/singleRoom');
     } else {
-      alert(ok);
+      swal(ok);
     }
   });
 }
@@ -90,7 +90,7 @@ var singleRoom = function() {
 
       // 设置房间标题
       if (players[i].host) {
-        $('.title').text(players[i].username + ' 的房间');
+        $('.title > span').text(players[i].username + ' 的房间');
       }
 
       if (players[i].user_id == window.user_id) {
@@ -117,14 +117,14 @@ var singleRoom = function() {
 
   // 点击开始游戏
   $('.single-room.start-game').click(function(event) {
-    if($(this).hasClass('start-game')) {
+    if ($(this).hasClass('start-game')) {
       socket.emit('wanna start game');
     }
   });
 
   // 服务器返回是否可以开始游戏
   socket.on('game not ready', function() {
-    alert('有玩家木有准备好');
+    swal('有玩家木有准备好');
   });
   socket.on('game started', function() {
     // 切换到game页
@@ -142,11 +142,16 @@ var game = function() {
   var width = $('#window').width();
   var board_width = width * 0.7;
   $('.game.board').width(board_width).height(board_width);
-  const chessman_div_borad = 0.04; // 棋子多宽
+  const chessman_div_board = 0.04; // 棋子多宽
+  const dicebox_div_board = 0.15; // 骰子框多宽
   // 调整棋子宽度
-  $('.game.chessman').width(board_width * chessman_div_borad)
-    .height(board_width * chessman_div_borad)
-    .css('border-radius', board_width * chessman_div_borad);
+  $('.game.chessman').width(board_width * chessman_div_board)
+    .height(board_width * chessman_div_board)
+    .css('border-radius', board_width * chessman_div_board);
+
+  $('.game.dice-box').width(board_width * dicebox_div_board)
+    .height(board_width * dicebox_div_board)
+    .css('border-radius', board_width * chessman_div_board * 0.3);
 
   var task_width = width * (1 - 0.7);
   // 设置任务栏宽高
@@ -157,46 +162,93 @@ var game = function() {
   // 设置聊天框
   $('.game.chat-area').width(task_width).height(chat_height);
 
+  window.chat();
+
   socket.emit('game loaded');
 
-  // 监听我的回合
-  socket.on('my turn', function() {
-    $('.game.dice').addClass('active').text('掷骰子');
+  // 监听新的回合开始
+  socket.on('turn dice', function(data) {
+    console.log(data);
+    $('.game.dice-box > .dice').removeClass().addClass('dice');
+    $('.game.dice-box').fadeIn();
+    if (data.user_id === socket.id) {
+      // 当前回合是我
+      $('.game.dice-box').addClass('active');
+    }
+    // 谁的回合
+    $('.title > span').text(data.username + ' 的回合...');
   });
 
-  $('.game.dice').click(function(event) {
-    if(!$(this).hasClass('active')) return false;
+  $('.game.dice-box').click(function(event) {
+    if (!$(this).hasClass('active')) return false;
+    // 等待结果从服务器返回
     socket.emit('wanna dice');
-    $(this).removeClass('active').text('等待结果...');
+    $(this).removeClass('active')
   });
 
-  var toggle_chess_active = function(color) {
+  var set_chess_active = function(color, available) {
     var player = player_colors.indexOf(color);
-    for (var i = 0; i < 4; i++) {
-      $('.game.chessman.' + color + '.num-' + i).toggleClass('active');
+    for (var i = 0; i < available.length; i++) {
+      $('.game.chessman.' + color + '.num-' + available[i]).addClass('active');
+    }
+  }
+
+  var unset_chess_active = function(color) {
+    var player = player_colors.indexOf(color);
+    var chess_list = [0, 1, 2, 3];
+    for (var i = 0; i < chess_list.length; i++) {
+      $('.game.chessman.' + color + '.num-' + chess_list[i]).removeClass('active');
     }
   }
 
   var now_turn = -1; // 当前玩家
   socket.on('dice result', function(data) {
-    $('.game.dice').text('选择棋子前进 ' + data.dice + '步');
-    toggle_chess_active(player_colors[data.player]);
-    now_turn = data.player; // 存起来
+    console.log('dice result: ', data);
+    // 设置棋子的点数
+    $('.game.dice-box > .dice').addClass('dice-' + data.dice);
+    // 骰子旋转完之后隐藏起来
+    setTimeout(function() {
+      $('.game.dice-box').fadeOut("fast", function(){
+        // 骰子已经停止旋转了，隐藏好了
+        if (data.user_id === socket.id) {
+          // 隐藏之后再发送是否直接下一轮
+          if (data.available.length === 0) {
+            socket.emit('chess move done');
+          }
+          // 如果是自己才设置棋子可以点击
+          set_chess_active(player_colors[data.player_num], data.available);
+          now_turn = data.player_num; // 存起来下面用
+        }
+      });
+    }, 1000);
   });
 
   $('.game.chessman').click(function(event) {
-    if(!$(this).hasClass('active')) return false;
+    if (!$(this).hasClass('active')) return false;
     socket.emit('move chessman', $(this).attr('num'));
-    toggle_chess_active(player_colors[now_turn]);
-    $('.game.dice').text('等待回合开始...');
+    unset_chess_active(player_colors[now_turn]);
   });
 
-  socket.on('chess moved', function(ok) {
-    // 如果不ok，说明出bug了
-    if(ok)
-      alert('棋子移动啦');
-    else
-      alert('出bug啦');
+  socket.on('chess move', function(data) {
+    console.log(data);
+    var color = player_colors[data.player_num];
+    var move_path = data.move_path;
+    var $chess = $('.game.chessman.' + color + '.num-' + data.chess_num);
+    var i = 1;
+    var inter = setInterval(function() {
+      if (i >= move_path.length) {
+        // 移动完了
+        socket.emit('chess move done'); // 注意，四个玩家都会发这个给服务器
+        clearInterval(inter); // 停止无限循环
+      } else {
+        $chess.removeClass(move_path[i - 1]).addClass(move_path[i]);
+        i++;
+      }
+    }, 300);
+  });
+
+  socket.on('game over', function(data) {
+    swal('游戏结束', data.username + ' 赢得了最终胜利！', 'success');
   });
 }
 
@@ -214,10 +266,10 @@ window.decide_page = function() {
     rooms();
   } else if (window.router == '/singleRoom') {
     singleRoom();
-  }  else if (window.router == '/game') {
+  } else if (window.router == '/game') {
     game();
   } else {
-    alert('Unknow page!');
+    swal('Unknow page!');
   }
 }
 
@@ -228,7 +280,7 @@ $(document).ready(function() {
   window.router = '/index';
 
   const max_width = 2048;
-  const window_ratio = 1/1;
+  const window_ratio = 1 / 1;
   const border_width = 0;
 
   function init_window() {

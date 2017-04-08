@@ -18,6 +18,12 @@ var update_room_info = function(socket, room_id) {
   }
 }
 
+
+var sys_chat = function(room_id, msg) {
+  io.in(room_id).emit('chat msg', msg);
+}
+
+
 io.sockets.on('connection', function(socket) {
   socket.emit('set username', {
     num: Math.ceil(Math.random() * 2000),
@@ -88,26 +94,61 @@ io.sockets.on('connection', function(socket) {
     var room_id = get_room_of(socket);
     var turn = game.set_gaming(socket.id, room_id);
     if(turn !== -1) {
-      var player = game.turn_to_user_id(room_id, turn);
-      io.in(player).emit('my turn');
+      // 返回玩家的user_id 和 username
+      var player = game.turn_to_user(room_id);
+      io.in(room_id).emit('turn dice', player);
     }
   });
 
 
-  // 玩家要掷骰子
+  // 玩家要掷骰子，只有能掷骰子的玩家才能发送这个
   socket.on('wanna dice', function() {
     var room_id = get_room_of(socket);
+
+    var dice = game.random_dice(room_id); // 它会存到room里的
+    // 广播掷骰子结果
     io.in(room_id).emit('dice result', {
-      dice: game.random_dice(room_id),
-      player: game.now_turn(room_id),
+      user_id: socket.id,
+      dice: dice,
+      player_num: game.now_turn(room_id),
+      available: game.get_available(room_id), // 放哪些棋子是可以move的，前端要用
+    });
+
+    var username = game.turn_to_user(room_id).username;
+    sys_chat(room_id, username + ' 掷出 ' + dice);
+  });
+
+
+  // 玩家选择移动棋子【有死循环！】
+  socket.on('move chessman', function(num) {
+    // 知道玩家要移动第几个棋子，也知道玩家
+    var room_id = get_room_of(socket);
+    // 返回玩家序号，棋子序号，棋子的移动路径
+    io.in(room_id).emit('chess move', {
+      player_num: game.now_turn(room_id),
+      chess_num: num,
+      move_path: game.get_movement_path(room_id, num),
     });
   });
 
 
-  // 玩家选择移动棋子
-  socket.on('move chessman', function() {
+  // 玩家发送“移动棋子”结束的信号
+  socket.on('chess move done', function() {
     var room_id = get_room_of(socket);
-    // TODO
+    var player = game.turn_to_user(room_id);
+    if(socket.id === player.user_id) {
+      // 当前回合的玩家的棋子移动动画结束了
+      // TODO: 新增的回合阶段从这里开始
+      // 这里标志着普通的移动回合结束了
+      // 如果要结算任务什么的应该从这里开始
+      // 但是现在没有任务，所以直接进入下一回合
+      var next_player = game.next_turn(room_id);
+      if(next_player.game_over) {
+        io.in(room_id).emit('game over', next_player);
+      } else {
+        io.in(room_id).emit('turn dice', next_player);
+      }
+    }
   });
 
 
