@@ -3,6 +3,12 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', (req, res, next) => {
+  res.render('layout', {
+    title: '飙车飞行棋'
+  });
+});
+
+router.get('/index', (req, res, next) => {
   res.render('index', {
     title: '飙车飞行棋'
   });

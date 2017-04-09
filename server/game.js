@@ -7,17 +7,20 @@ var Room = {
     var room = {};
     room.id = Math.random().toString(36).substr(2);
     room.owner = '';
-    room.players = [{empty: true}, {empty: true}, {empty: true}, {empty: true}]; // 用fill()会有bug啊！
+    room.players = [{
+      empty: true
+    }, {
+      empty: true
+    }, {
+      empty: true
+    }, {
+      empty: true
+    }]; // 用fill()会有bug啊！
     room.size = function() {
       return room.players.filter(item => item.empty != true).length;
     }
 
-    room.setReady = function(user_id, ready) {
-      var i = room.players.findIndex(item => item.user_id == user_id);
-      room.players[i].ready = ready;
-      return true;
-    }
-
+    // 返回所有不为空的玩家
     room.getPlayers = function() {
       return room.players.filter(item => !item.empty);
     }
@@ -25,9 +28,11 @@ var Room = {
     room.gaming = false;
     room.nowTurn = -1; // 当前是谁的回合
     // 已经加载完的人数
-    room.loadCount = function() {
+    room.gamingCount = function() {
       return room.players.filter(item => item.empty != true && item.gaming).length;
     }
+
+    room.waitingFor = 0; // 每个阶段要等待多少个人（播放动画等），用来同步
 
     return room;
   }
@@ -112,7 +117,19 @@ var leaveRoom = function(user_id, room_id) {
   if (old) {
     // rooms_pool[room_id].players = old.players.filter(item => item.user_id != user_id);
     var p_index = old.players.findIndex(item => item.user_id === user_id);
-    var isHost = old.players[p_index].host; // 记录一下是不是房主退出
+    var player = old.players[p_index];
+    var isHost = player.host; // 记录一下是不是房主退出
+    var username = player.username;
+
+    if (player.gaming && old.nowTurn === p_index) {
+      // 跳过他的回合
+      var next_player = next_turn(room_id);
+    }
+
+    if (player.gaming && old.waitingFor > 0) {
+      // TODO, 目前是不管三七二十一就当作已经完成当前回合
+      old.waitingFor--;
+    }
 
     old.players[p_index] = {
       empty: true
@@ -125,24 +142,35 @@ var leaveRoom = function(user_id, room_id) {
       old.players[new_host].ready = true;
     }
     delete socket_in_room[user_id];
-    return true;
+    return {
+      username: username,
+      next_player: next_player
+    };
   } else {
     return false;
   }
 }
 
 
-// 玩家开始游戏
+var set_ready = function(room_id, user_id, ready) {
+  var room = rooms_pool[room_id];
+  var i = room.players.findIndex(item => item.user_id == user_id);
+  room.players[i].ready = ready;
+  return true;
+}
+
+
+// 房主点击 开始游戏
 var start_game = function(room_id) {
   if (!rooms_pool[room_id]) {
     console.log('房间不存在: ' + room_id);
     return false;
   }
   // 判断是否可以开始
-  var players = rooms_pool[room_id].getPlayers();
+  var players = rooms_pool[room_id].getPlayers(); // 返回所有不为空的玩家
   for (var i = 0; i < players.length; i++) {
     // 有玩家没有准备
-    if (!players[i].empty && !players[i].ready) {
+    if (!players[i].ready) {
       return false;
     }
   }
@@ -156,14 +184,16 @@ var start_game = function(room_id) {
 
 // 玩家加载完了游戏界面
 var set_gaming = function(user_id, room_id) {
-  var p = rooms_pool[room_id].players.findIndex(item => item.user_id == user_id);
-  rooms_pool[room_id].players[p].gaming = true;
-  if (rooms_pool[room_id].loadCount() == rooms_pool[room_id].size()) {
+  var room = rooms_pool[room_id];
+  // 找到这个说加载好了的玩家
+  var p = room.players.findIndex(item => item.user_id == user_id);
+  room.players[p].gaming = true; // 标记成游戏中
+  if (room.gamingCount() === room.size()) {
     // 大家都加载完了
-    rooms_pool[room_id].nowTurn = rooms_pool[room_id].players.findIndex(item => !item.empty);
-    return rooms_pool[room_id].nowTurn;
+    room.nowTurn = room.players.findIndex(item => !item.empty);
+    return room.nowTurn;
   } else {
-    // 还有没加载完
+    // 还有没加载完的玩家
     return -1;
   }
 }
@@ -187,8 +217,10 @@ var turn_to_user = function(room_id) {
 
 // 获得一个掷骰子结果，目前是完全随机
 var random_dice = function(room_id) {
+  var room = rooms_pool[room_id];
   var dice = Math.ceil(Math.random() * 6);
-  rooms_pool[room_id].dice = dice;
+  room.dice = dice;
+  room.waitingFor = room.gamingCount();
   return dice;
 }
 
@@ -201,7 +233,6 @@ var get_available = function(room_id) {
 
   var res = [];
   console.log("DICE: " + room.dice);
-  console.log(player.chessman);
   for (var i = 0; i < player.chessman.length; i++) {
     if (player.chessman[i].status === CHESS_STATUS.READY ||
       player.chessman[i].status === CHESS_STATUS.FLYING) {
@@ -253,14 +284,14 @@ var get_movement_path = function(room_id, chess) {
     if (pos === game_path[1]) {
       pos = game_path[2];
       res_path.push('pos-' + pos);
-    } else if (pos >= game_path[2]) {
-      // 如果在直线跑道上了，前移一个跑道
-      pos += 4;
-      res_path.push('pos-' + pos);
     } else if (pos >= game_path[3]) {
       // 在终点上了
       status = CHESS_STATUS.ARRIVED;
       res_path.push('arrived');
+    } else if (pos >= game_path[2]) {
+      // 如果在直线跑道上了，前移一个跑道
+      pos += 4;
+      res_path.push('pos-' + pos);
     } else {
       // 在普通外环上
       pos = parseInt((pos + 1) % gConfig.round_length);
@@ -268,15 +299,32 @@ var get_movement_path = function(room_id, chess) {
     }
     dice--;
   }
-  console.log("Before writen ", rooms_pool[room_id].players[room.nowTurn].chessman);
 
-  console.log("Write to: ", rooms_pool[room_id].players[room.nowTurn].chessman[chess]);
+  // 判断能不能同色跳
+  if (status === CHESS_STATUS.FLYING &&
+    pos % 4 === room.nowTurn &&
+    pos < game_path[2] &&
+    pos != game_path[1]) {
+    // 先判断在不在加油站起点
+    if (pos === (game_path[0] + 1 + 4 * 4) % gConfig.round_length) {
+      // 在加油站起点
+      pos = (pos + 4 * 3) % gConfig.round_length; // 飞过去
+      res_path.push('pos-' + pos);
+    }
+    // 跳一下
+    pos = (pos + 4) % gConfig.round_length;
+    res_path.push('pos-' + pos);
+    // 再判断在不在加油站起点
+    if (pos === (game_path[0] + 1 + 4 * 4) % gConfig.round_length) {
+      // 在加油站起点
+      pos = (pos + 4 * 3) % gConfig.round_length; // 飞过去
+      res_path.push('pos-' + pos);
+    }
+  }
 
   // 写回棋子的状态和位置
   rooms_pool[room_id].players[room.nowTurn].chessman[chess].status = status;
   rooms_pool[room_id].players[room.nowTurn].chessman[chess].position = pos;
-
-  console.log("After writen ", rooms_pool[room_id].players[room.nowTurn].chessman);
 
   // 返回值
   return res_path;
@@ -286,6 +334,14 @@ var get_movement_path = function(room_id, chess) {
 // 启动新回合，标记是否game over
 var next_turn = function(room_id) {
   var room = rooms_pool[room_id];
+
+  room.waitingFor--; // 说明来了一个人
+  // 先判断一下还等不等人
+  if (room.waitingFor > 0) {
+    console.log('还要等: ', room.waitingFor);
+    return false;
+  }
+
   var now_turn = room.nowTurn;
   var old_turn = now_turn;
 
@@ -325,11 +381,31 @@ var next_turn = function(room_id) {
   };
 }
 
+var swap_chair = function(room_id, user_id, dist_chair) {
+  var players = rooms_pool[room_id].players;
+
+  var src_chair = players.findIndex(item => item.user_id === user_id);
+
+  console.log(dist_chair);
+
+  if (src_chair !== -1 && players[dist_chair] && players[dist_chair].empty) {
+    var temp = players[dist_chair]; // 讲道理这里应该是空
+    players[dist_chair] = players[src_chair];
+    players[src_chair] = temp;
+    return true;
+  } else {
+    return false;
+  }
+}
+
 module.exports = {
   rooms_pool: rooms_pool,
   createRoom: createRoom,
   joinRoom: joinRoom,
   leaveRoom: leaveRoom,
+
+  set_ready: set_ready, // 设置玩家的准备状态
+  swap_chair: swap_chair, // 玩家换位到空位上
 
   socket_in_room: socket_in_room,
   start_game: start_game,
@@ -338,7 +414,7 @@ module.exports = {
   turn_to_user: turn_to_user, // room_id => user
   now_turn: now_turn,
   get_available: get_available,
-  get_movement_path: get_movement_path,
+  get_movement_path: get_movement_path, // 获取棋子的移动路径
 
   next_turn: next_turn, // 开启新回合
 }

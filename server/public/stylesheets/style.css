@@ -43,19 +43,22 @@ body {
   border-bottom: 1px solid lightgrey;
 }
 
-.title > .icons {
+#window .title > .icons {
   height: 50px;
   width: 50px;
   box-sizing: border-box;
   cursor: pointer;
 }
-.title > .icons:hover {
+#window .title > .icons:hover {
   background-color: rgba(255,255,255,0.2);
 }
 
 /* 用来占位 */
 .title > .nothing {
   float: left;
+  cursor: default;
+}.title > .nothing.right {
+  float: right;
   cursor: default;
 }
 .title > .nothing:hover {
@@ -91,59 +94,149 @@ body {
 
 /* 聊天框 */
 .chat.box {
-    width: 100%;
-    height: 100%;
-    box-sizing: border-box;
-    border: 10px solid #E0E0E0;
-    border-radius: 6px;
-    padding: 10px 10px;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  border: 10px solid #E0E0E0;
+  border-radius: 6px;
+  padding: 10px 10px;
 
-    position: relative;
-    left: 0;
-    top: 0;
+  position: relative;
+  left: 0;
+  top: 0;
 }
 .chat.list {
-    width: 100%;
-    height: 70%;
-    overflow-y: auto;
-    -ms-overflow-style: none;
-    overflow: -moz-scrollbars-none;
+  width: 100%;
+  height: 70%;
+  overflow-y: auto;
+  -ms-overflow-style: none;
+  overflow: -moz-scrollbars-none;
 }
 .chat.list::-webkit-scrollbar { 
-    display: none;
+  display: none;
 }
 
 .chat.list > .item {
-    width: 100%;
-    height: auto;
-    font-size: 8%;
-    line-height: 1;
-    text-align: left;
+  width: 100%;
+  height: auto;
+  font-size: 8%;
+  line-height: 1;
+  text-align: left;
 
-    padding: 3px 10px;
-    background-color: var(--main-black-o);
+  padding: 3px 10px;
+  background-color: var(--main-black-o);
 }
 
 .chat.list > .item.odd {
-    background-color: var(--main-orange-o);
+  background-color: var(--main-orange-o);
 }
 
 .chat.input {
-    width: 100%;
-    height: 30px;
-    font-size: 20px;
-    line-height: 30px;
+  width: 100%;
+  height: 30px;
+  font-size: 20px;
+  line-height: 30px;
 
-    padding: 0 10px;
+  padding: 0 10px;
 
-    border: 0.5px solid lightgrey;
-    border-radius: 3px;
+  border: 0.5px solid lightgrey;
+  border-radius: 3px;
 
-    box-sizing: border-box;
+  box-sizing: border-box;
 
-    display: inline-block;'
+  display: inline-block;
 
-    position: absolute;
-    left: 0;
-    bottom: 0;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+}
+
+
+/* 设置框 */
+.settings-box {
+  border-radius: 1%;
+  background-color: white;
+
+  margin: 100px auto 0 auto;
+
+  box-shadow: 5px 5px 10px 3px #888888;
+
+  position: absolute;
+  top: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  overflow: hidden;
+}
+
+.settings-title {
+  height: 50px;
+  width: 100%;
+  font-size: 30px;
+  line-height: 50px;
+  text-align: center;
+  background: #E0E0E0;
+  border-bottom: 1px solid lightgrey;
+}
+
+.settings-title > .close {
+  height: 35px;
+  width: 35px;
+  box-sizing: border-box;
+  cursor: pointer;
+  margin-top: 3px;
+  margin-right: 3px;
+  
+  display: inline;
+
+  background-image: url('/images/logos/close.png');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+
+  float: right;
+}
+.settings-title > .close:hover {
+  background-color: rgba(255,255,255,0.2);
+}
+
+/* 用来占位 */
+.settings-title > .nothing {
+  height: 35px;
+  width: 35px;
+  box-sizing: border-box;
+  display: inline;
+  float: left;
+  cursor: default;
+  margin-top: 3px;
+  margin-right: 3px;
+}
+
+.settings-box .field.label {
+  height: 20px;
+  font-size: 18px;
+  line-height: 20px;
+
+  text-align: center;
+
+  background-color: inherit;
+
+  margin-bottom: 5px;
+}
+
+.settings-box input.field {
+  width: 70%;
+  height: 50px;
+  font-size: 30px;
+  line-height: 50px;
+
+  padding: 0 10px;
+
+  border: 0.5px solid lightgrey;
+  border-radius: 3px;
+
+  box-sizing: border-box;
+
+  text-align: center;
 }

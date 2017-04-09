@@ -10,7 +10,7 @@ var player_path_blue = [25, 22, 54, 74];
 var player_path_yellow = [38, 35, 55, 75];
 
 // 所有玩家的飞行路径
-var player_path = [player_path_green];
+var player_path = [player_path_green, player_path_red, player_path_blue, player_path_yellow];
 
 // 允许起飞的骰子点数
 var ready_allow = [2, 4, 6];

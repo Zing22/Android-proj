@@ -1,5 +1,18 @@
 // 主页路由
 var index = function() {
+  settings(); // 启动settings
+
+  if(!window.socket) {
+    window.socket = io(); // 建立连接
+    socket.emit('random name', window.username);
+  }
+  socket.on('new username', function(data) {
+    console.log(data);
+    window.username = data.new_name;
+    window.user_id = data.user_id;
+  });
+
+
   $('.start').click(function(event) {
     window.switch_page('/rooms');
   });
@@ -9,27 +22,29 @@ var index = function() {
 
 // 房间列表
 var rooms = function() {
-  console.log('Establish socket');
-  window.socket = io('http://127.0.0.1');
-  socket.on('set username', function(data) {
-    console.log(data);
-    window.username += '#' + data.num;
-    window.user_id = data.user_id;
-  });
+  socket.emit('need rooms list');
 
   socket.on('rooms list', function(rooms) {
     $('.rooms.list *').remove();
     var keys = Object.keys(rooms);
     for (var i = keys.length - 1; i >= 0; i--) {
       var room = rooms[keys[i]];
-      var r = $('<div>').addClass('item').text(room.owner + ' 的房间 [' + room.players.filter(item => !item.empty).length + '/4]');
+      var text = room.owner + ' 的房间 [' + room.players.filter(item => !item.empty).length + '/4]';
+      var r = $('<div>').addClass('item').attr('room_id', room.id);
       // 点击加入房间
-      $(r).click(() => {
-        socket.emit('join room', {
-          room_id: room.id,
-          username: window.username
+      if (!room.gaming) {
+        $(r).click(function() {
+          socket.emit('join room', {
+            room_id: $(this).attr('room_id'),
+            username: window.username
+          });
         });
-      });
+      } else {
+        text += ' [游戏中]'
+      }
+
+      r.text(text);
+
       $('.rooms.list').append(r);
       if (i) {
         $('.rooms.list').append($('<div>').addClass('ui divider'));
@@ -51,6 +66,11 @@ var rooms = function() {
       swal(ok);
     }
   });
+
+  // 返回主页
+  $('.return.icons').click(function(event) {
+    window.switch_page('/index');
+  });
 }
 
 
@@ -68,16 +88,20 @@ var singleRoom = function() {
   // 告诉服务器我进房间了，可以发送房间信息给我
   socket.emit('in room');
 
-  // 这个顺序很有意思，应该从绿色开始，顺时针转，就是这样的顺序
+  // 这个顺序很有意思，应该从右上角绿色开始，顺时针转，就是这样的顺序
   window.player_colors = ['green', 'red', 'blue', 'yellow'];
   socket.on('players info', function(players) {
     console.log(players);
     for (var i = 0; i < players.length; i++) {
       // 空位
       if (players[i].empty) {
+        $('.single-room.player.' + player_colors[i]).addClass('empty').click(function(event) {
+          socket.emit('swap chair', $(this).attr('chair'));
+        });
         $('.single-room.player.' + player_colors[i] + ' > .username').text('空位');
         continue;
       }
+      $('.single-room.player.' + player_colors[i]).removeClass('empty');
       // 非空位
       var name = '';
       if (players[i].host) {
@@ -124,16 +148,21 @@ var singleRoom = function() {
 
   // 服务器返回是否可以开始游戏
   socket.on('game not ready', function() {
-    swal('有玩家木有准备好');
+    swal('还有玩家木有准备');
   });
   socket.on('game started', function() {
     // 切换到game页
     window.switch_page('/game');
   });
 
-
   // 启动聊天功能
   chat();
+
+  // 点击返回键
+  $('.return.icons').click(function(event) {
+    socket.emit('leave room');
+    window.switch_page('/rooms');
+  });
 }
 
 // game 页
@@ -166,6 +195,22 @@ var game = function() {
 
   socket.emit('game loaded');
 
+  var remove_player = function(num) {
+    var color = player_colors[num];
+    for (var i = 0; i < 4; i++) {
+      $('.game.chessman.' + color + '.num-' + i).hide();
+    }
+  }
+
+  // 监听玩家列表，移除没有玩家的棋子
+  socket.on('players info', function(players) {
+    for (var i = 0; i < players.length; i++) {
+      if (players[i].empty) {
+        remove_player(i);
+      }
+    }
+  });
+
   // 监听新的回合开始
   socket.on('turn dice', function(data) {
     console.log(data);
@@ -174,9 +219,13 @@ var game = function() {
     if (data.user_id === socket.id) {
       // 当前回合是我
       $('.game.dice-box').addClass('active');
+      $('.title > span').text('我的回合！');
+    } else {
+      // 多此一举
+      $('.game.dice-box').removeClass('active');
+      // 谁的回合
+      $('.title > span').text(data.username + ' 的回合...');
     }
-    // 谁的回合
-    $('.title > span').text(data.username + ' 的回合...');
   });
 
   $('.game.dice-box').click(function(event) {
@@ -208,13 +257,14 @@ var game = function() {
     $('.game.dice-box > .dice').addClass('dice-' + data.dice);
     // 骰子旋转完之后隐藏起来
     setTimeout(function() {
-      $('.game.dice-box').fadeOut("fast", function(){
+      $('.game.dice-box').fadeOut("fast", function() {
         // 骰子已经停止旋转了，隐藏好了
+        // 如果不能移动，直接下一轮
+        if (data.available.length === 0) {
+          socket.emit('chess move done');
+          return true;
+        }
         if (data.user_id === socket.id) {
-          // 隐藏之后再发送是否直接下一轮
-          if (data.available.length === 0) {
-            socket.emit('chess move done');
-          }
           // 如果是自己才设置棋子可以点击
           set_chess_active(player_colors[data.player_num], data.available);
           now_turn = data.player_num; // 存起来下面用
@@ -250,6 +300,12 @@ var game = function() {
   socket.on('game over', function(data) {
     swal('游戏结束', data.username + ' 赢得了最终胜利！', 'success');
   });
+
+  // 点击返回键
+  $('.return.icons').click(function(event) {
+    socket.emit('leave room');
+    window.switch_page('/rooms');
+  });
 }
 
 
@@ -276,9 +332,8 @@ window.decide_page = function() {
 
 
 $(document).ready(function() {
-  window.username = 'Zing'; // 目前不实现设置页
+  window.username = '玩家'; // 初始玩家名
   window.router = '/index';
-
   const max_width = 2048;
   const window_ratio = 1 / 1;
   const border_width = 0;
@@ -292,9 +347,13 @@ $(document).ready(function() {
     $("#window").width(width);
     $("#window").height(height);
 
+    var setting_width = $('.settings-box').width();
+    $('.settings-box').css('left', ($(window).width() - setting_width)/2).hide();
+    
   }
   init_window();
-  window.decide_page();
+
+  window.switch_page('/index');
 
   // for drawing UI
   var debug = function() {}

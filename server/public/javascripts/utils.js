@@ -35,3 +35,20 @@ function chat() {
     chat_num++;
   });
 }
+
+
+function settings() {
+  $('.btn.settings').click(event => {
+    $('.settings-box > input[name="username"]').val(window.username);
+    $('.settings-box').fadeIn();
+  });
+
+  $('.settings-box .username.commit').click(event => {
+    window.username = $('.settings-box > input[name="username"]').val();
+    $('.settings-box').fadeOut();
+  });
+
+  $('.settings-title > .close').click(event => {
+    $('.settings-box').fadeOut();
+  })
+}

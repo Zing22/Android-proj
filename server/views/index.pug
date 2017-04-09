@@ -1,15 +1,9 @@
-extends layout
-
-block stylesheet
-    link(rel='stylesheet', href='/stylesheets/index.css')
-
-block content
-    .title
-        span= title
-        .nothing.icons
-        .settings.icons
-    .index.logo
-        img.index(src='/images/img.png')
-    .index.ui.btn.orange.start 开始
-    .index.ui.divider.hidden
-    .index.ui.btn 设置
+.title
+    span= title
+    //- .nothing.icons
+    //- .settings.icons
+.index.logo
+    img.index(src='/images/img.png')
+.index.ui.btn.orange.start 开始
+.index.ui.divider.hidden
+.index.ui.btn.settings 设置

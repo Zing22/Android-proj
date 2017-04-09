@@ -6,10 +6,22 @@ html
     link(rel='stylesheet', href='/stylesheets/style.css')
     link(rel='stylesheet', href='/stylesheets/ui.css')
     link(rel='stylesheet', href='/stylesheets/sweetalert2.min.css')
-    block stylesheet
+    link(rel='stylesheet', href='/stylesheets/index.css')
   body
     #window
-        block content
+        //- settings
+    .settings-box
+        .settings-title
+            span 设置
+            .nothing.icons
+            .close.icons
+        .ui.divider.hidden
+        .field.label 用户名
+        input.field(name='username', maxlength='10')
+        .ui.divider.hidden
+        .ui.btn.username.commit 确定
+        .ui.divider.hidden.big
+    block content
 
     //- block javascripts
     script(src="/javascripts/libs/jquery-3.2.0.min.js")

@@ -42,6 +42,10 @@ img.index {
     display: inline-block;
 }
 
+.single-room.player.empty {
+    cursor: pointer;
+}
+
 .single-room.player > .chessman {
     border: 5px solid black;
     margin: 22px auto;
@@ -148,70 +152,86 @@ img.index {
 }
 
 /* 绿色棋子初始位置 */
-.game.chessman.green.num-0.not-ready {
+.game.chessman.green.num-0.not-ready,
+.game.chessman.green.num-0.arrived {
     top: 6.4%;
     left: 7.2%;
 }
-.game.chessman.green.num-1.not-ready {
+.game.chessman.green.num-1.not-ready,
+.game.chessman.green.num-1.arrived {
     top: 6.4%;
     left: 17%;
 }
-.game.chessman.green.num-2.not-ready {
+.game.chessman.green.num-2.not-ready,
+.game.chessman.green.num-2.arrived {
     top: 16%;
     left: 7.3%;
 }
-.game.chessman.green.num-3.not-ready {
+.game.chessman.green.num-3.not-ready,
+.game.chessman.green.num-3.arrived {
     top: 16%;
     left: 17%;
 }
 /* 红色棋子初始位置 */
-.game.chessman.red.num-0.not-ready {
+.game.chessman.red.num-0.not-ready,
+.game.chessman.red.num-0.arrived {
     top: calc(6.4% + 0.4%);
     left: calc(7.2% + 71.1%);
 }
-.game.chessman.red.num-1.not-ready {
+.game.chessman.red.num-1.not-ready,
+.game.chessman.red.num-1.arrived  {
     top: calc(6.4% + 0.4%);
     left: calc(17% + 71.1%);
 }
-.game.chessman.red.num-2.not-ready {
+.game.chessman.red.num-2.not-ready,
+.game.chessman.red.num-2.arrived  {
     top: calc(16% + 0.3%);
     left: calc(7.3% + 71.1%);
 }
-.game.chessman.red.num-3.not-ready {
+.game.chessman.red.num-3.not-ready,
+.game.chessman.red.num-3.arrived  {
     top: calc(16% + 0.3%);
     left: calc(17% + 71.1%);
 }
 /* 蓝色棋子初始位置 */
-.game.chessman.blue.num-0.not-ready {
+.game.chessman.blue.num-0.not-ready,
+.game.chessman.blue.num-0.arrived  {
     top: calc(6.4% + 71.1%);
     left: calc(7.2% + 70.7%);
 }
-.game.chessman.blue.num-1.not-ready {
+.game.chessman.blue.num-1.not-ready,
+.game.chessman.blue.num-1.arrived {
     top: calc(6.4% + 71.1%);
     left: calc(17% + 70.7%);
 }
-.game.chessman.blue.num-2.not-ready {
+.game.chessman.blue.num-2.not-ready,
+.game.chessman.blue.num-2.arrived {
     top: calc(16% + 71.1%);
     left: calc(7.1% + 70.7%);
 }
-.game.chessman.blue.num-3.not-ready {
+.game.chessman.blue.num-3.not-ready,
+.game.chessman.blue.num-3.arrived {
     top: calc(16% + 71.1%);
     left: calc(17% + 70.7%);
 }
 /* 黄色棋子初始位置 */
-.game.chessman.yellow.num-0.not-ready {
+.game.chessman.yellow.num-0.not-ready,
+.game.chessman.yellow.num-0.arrived {
     top: calc(6.4% + 71.1%);
     left: calc(7% + 0.2%);
 }
-.game.chessman.yellow.num-1.not-ready {
+.game.chessman.yellow.num-1.not-ready,
+.game.chessman.yellow.num-1.arrived {
     top: calc(6.4% + 71.1%);
     left: calc(17% + 0.2%);
 }
-.game.chessman.yellow.num-2.not-ready {
+.game.chessman.yellow.num-2.not-ready,
+.game.chessman.yellow.num-2.arrived {
     top: calc(16% + 71.1%);
     left: calc(7.3% + 0.1%);
 }
-.game.chessman.yellow.num-3.not-ready {
+.game.chessman.yellow.num-3.not-ready,
+.game.chessman.yellow.num-3.arrived {
     top: calc(16% + 71.1%);
     left: calc(17% + 0.2%);
 }
@@ -240,16 +260,16 @@ img.index {
     left: 4.2%;
 }
 .game.chessman.red.ready {
-    top: 25.8%;
-    left: 90.4%;
+    top: 3.5%;
+    left: 68.5%;
 }
 .game.chessman.blue.ready {
     top: 68.5%;
     left: 90.4%;
 }
 .game.chessman.yellow.ready {
-    top: 68.5%;
-    left: 4.2%;
+    top: 90.5%;
+    left: 26.5%;
 }
 
 /* 这是棋盘跑道上的点，你无法想象我经历了什么 */

@@ -2,35 +2,46 @@ var app = require('./app.js').app;
 var io = require('./app.js').io;
 var game = require('./game.js');
 
+// 发送系统消息
+var sys_chat = function(room_id, msg, title = '系统') {
+  io.in(room_id).emit('chat msg', '[' + title + ']' + msg);
+}
+
 // 每个socket只能在一个room中
 var get_room_of = function(socket) {
   // return Object.keys(socket.rooms).filter(item => item != socket.id);
   return game.socket_in_room[socket.id];
 }
 
-var update_room_info = function(socket, room_id) {
-  if(!room_id) {
+var update_room_info = function(socket, room_id, left) {
+  if (!room_id) {
     room_id = get_room_of(socket);
   }
 
-  if(game.rooms_pool[room_id]) {
-    io.in(room_id).emit('players info', game.rooms_pool[room_id].players);  
+  if (game.rooms_pool[room_id]) {
+    io.in(room_id).emit('players info', game.rooms_pool[room_id].players);
   }
-}
 
-
-var sys_chat = function(room_id, msg) {
-  io.in(room_id).emit('chat msg', msg);
+  if (left) {
+    sys_chat(room_id, left + ' 离开了')
+  }
 }
 
 
 io.sockets.on('connection', function(socket) {
-  socket.emit('set username', {
-    num: Math.ceil(Math.random() * 2000),
-    user_id: socket.id
+  console.log(socket.id + ' 连接');
+  socket.on('random name', function(old_name) {
+    console.log('要名字');
+    socket.emit('new username', {
+      new_name: old_name + '#' + Math.ceil(Math.random() * 2000),
+      user_id: socket.id
+    });
   });
 
-  socket.emit('rooms list', game.rooms_pool);
+  // 想要房间列表
+  socket.on('need rooms list', function() {
+    socket.emit('rooms list', game.rooms_pool);
+  })
 
   // 创建房间
   socket.on('create room', function(data) {
@@ -64,9 +75,42 @@ io.sockets.on('connection', function(socket) {
   // 玩家准备 or 取消准备
   socket.on('set ready', function(ready) {
     var room_id = get_room_of(socket);
-    var res = game.rooms_pool[room_id].setReady(socket.id, ready);
-    if(res) {
+    var res = game.set_ready(room_id, socket.id, ready);
+    if (res) {
       update_room_info(socket);
+    }
+  });
+
+
+  // 玩家想换位子
+  socket.on('swap chair', function(dist) {
+    var room_id = get_room_of(socket);
+    var success = game.swap_chair(room_id, socket.id, dist);
+    if (success) {
+      update_room_info(socket);
+    }
+  });
+
+
+  // 玩家点击返回键退出房间（不是游戏）
+  socket.on('leave room', function() {
+    var room_id = get_room_of(socket);
+    socket.leave(room_id); // 从socket的rooms list里面删去
+    var change = game.leaveRoom(socket.id, room_id);
+    if (change) {
+      // 通知一下在房间里的人
+      update_room_info(socket, room_id, change.username);
+      // 群发一下房间列表
+      io.emit('rooms list', game.rooms_pool);
+
+      if (change.next_player) {
+        // 说明当前回合的玩家离开了
+        if (change.next_player.game_over) {
+          io.in(room_id).emit('game over', change.next_player);
+        } else {
+          io.in(room_id).emit('turn dice', change.next_player);
+        }
+      }
     }
   });
 
@@ -81,8 +125,11 @@ io.sockets.on('connection', function(socket) {
 
   // 玩家点击 开始游戏
   socket.on('wanna start game', function() {
-    if(game.start_game(get_room_of(socket))) {
-      socket.emit('game started');
+    var room_id = get_room_of(socket);
+    if (game.start_game(room_id)) {
+      io.in(room_id).emit('game started');
+      // 群发一下房间列表
+      io.emit('rooms list', game.rooms_pool);
     } else {
       socket.emit('game not ready');
     }
@@ -93,10 +140,11 @@ io.sockets.on('connection', function(socket) {
   socket.on('game loaded', function() {
     var room_id = get_room_of(socket);
     var turn = game.set_gaming(socket.id, room_id);
-    if(turn !== -1) {
+    if (turn !== -1) {
       // 返回玩家的user_id 和 username
       var player = game.turn_to_user(room_id);
       io.in(room_id).emit('turn dice', player);
+      update_room_info(socket, room_id);
     }
   });
 
@@ -119,7 +167,7 @@ io.sockets.on('connection', function(socket) {
   });
 
 
-  // 玩家选择移动棋子【有死循环！】
+  // 玩家选择移动棋子
   socket.on('move chessman', function(num) {
     // 知道玩家要移动第几个棋子，也知道玩家
     var room_id = get_room_of(socket);
@@ -134,20 +182,22 @@ io.sockets.on('connection', function(socket) {
 
   // 玩家发送“移动棋子”结束的信号
   socket.on('chess move done', function() {
+    console.log('移动结束:', socket.id);
     var room_id = get_room_of(socket);
-    var player = game.turn_to_user(room_id);
-    if(socket.id === player.user_id) {
-      // 当前回合的玩家的棋子移动动画结束了
-      // TODO: 新增的回合阶段从这里开始
-      // 这里标志着普通的移动回合结束了
-      // 如果要结算任务什么的应该从这里开始
-      // 但是现在没有任务，所以直接进入下一回合
-      var next_player = game.next_turn(room_id);
-      if(next_player.game_over) {
-        io.in(room_id).emit('game over', next_player);
-      } else {
-        io.in(room_id).emit('turn dice', next_player);
-      }
+    // TODO: 新增的回合阶段从这里开始
+    // 这里标志着普通的移动回合结束了
+    // 如果要结算任务什么的应该从这里开始
+    // 但是现在没有任务，所以直接进入下一回合
+    var next_player = game.next_turn(room_id);
+    if (!next_player) { // 说明还在等人
+      return false;
+    }
+    console.log('下一回合是: ', next_player);
+    if (next_player.game_over) {
+      io.in(room_id).emit('game over', next_player);
+      sys_chat(room_id, next_player.username + ' 获胜！');
+    } else {
+      io.in(room_id).emit('turn dice', next_player);
     }
   });
 
@@ -156,12 +206,21 @@ io.sockets.on('connection', function(socket) {
   socket.on('disconnect', function() {
     var room_id = get_room_of(socket);
     var change = game.leaveRoom(socket.id, room_id);
-    console.log(socket.id + ' disconnected.' + change);
+    console.log(change + ' disconnected.');
     if (change) {
       // 通知一下在房间里的人
-      update_room_info(socket, room_id);
+      update_room_info(socket, room_id, change.username);
       // 群发一下房间列表
       io.emit('rooms list', game.rooms_pool);
+
+      if (change.next_player) {
+        // 说明当前回合的玩家离开了
+        if (change.next_player.game_over) {
+          io.in(room_id).emit('game over', change.next_player);
+        } else {
+          io.in(room_id).emit('turn dice', change.next_player);
+        }
+      }
     }
   });
 });
