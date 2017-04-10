@@ -3,7 +3,7 @@
 var path = require('path');
 
 var rootPath = __dirname;
-var serverPort = 80;
+var serverPort = 3000;
 
 module.exports = {
     rootPath: rootPath,

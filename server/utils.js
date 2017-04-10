@@ -1,5 +1,6 @@
 var config = require('./config.js');
 var debug = require('debug')('server:server');
+var port = config.serverPort;
 
 /**
  * Event listener for HTTP server "error" event.
@@ -33,7 +34,7 @@ function onError(error) {
  */
 
 function onListening() {
-  debug('Listening on ' + config.serverPort);
+  console.log('Listening on ' + config.serverPort);
 }
 
 module.exports = {
