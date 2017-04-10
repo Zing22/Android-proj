@@ -9,8 +9,29 @@
     text-align: center;
 }
 img.index {
+    max-width: 45%;
     margin-top: 70px;
     margin-bottom: 70px;
+}
+.index.advice-box {
+    display: block;
+    max-width: 50%;
+    text-align: center;
+}
+.advice-header {
+    width: 100%;
+    font-size: 24px;
+    line-height: 24px;
+    font-weight: 550;
+}
+.advice-lines {
+    font-size: 20px;
+    line-height: 30px;
+}
+.index.copyright {
+    position: absolute;
+    bottom: 30px;
+    margin: 0 auto;
 }
 
 /*** rooms 页 ***/

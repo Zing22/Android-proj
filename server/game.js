@@ -27,6 +27,7 @@ var Room = {
 
     room.gaming = false;
     room.nowTurn = -1; // 当前是谁的回合
+    room.sameTurn = false; // 当前玩家连续回合
     // 已经加载完的人数
     room.gamingCount = function() {
       return room.players.filter(item => item.empty != true && item.gaming).length;
@@ -220,7 +221,11 @@ var random_dice = function(room_id) {
   var room = rooms_pool[room_id];
   var dice = Math.ceil(Math.random() * 6);
   room.dice = dice;
-  room.waitingFor = room.gamingCount();
+  if(gConfig.allow_another_turn.indexOf(dice) !== -1) {
+    // 如果是6就再来一回合
+    room.sameTurn = true;
+  }
+  room.waitingFor = room.gamingCount(); // 说明要等待几个人的动画结束
   return dice;
 }
 
@@ -284,14 +289,15 @@ var get_movement_path = function(room_id, chess) {
     if (pos === game_path[1]) {
       pos = game_path[2];
       res_path.push('pos-' + pos);
-    } else if (pos >= game_path[3]) {
-      // 在终点上了
-      status = CHESS_STATUS.ARRIVED;
-      res_path.push('arrived');
     } else if (pos >= game_path[2]) {
       // 如果在直线跑道上了，前移一个跑道
       pos += 4;
       res_path.push('pos-' + pos);
+      if (pos >= game_path[3]) {
+        // 在终点上了
+        status = CHESS_STATUS.ARRIVED;
+        res_path.push('arrived');
+      }
     } else {
       // 在普通外环上
       pos = parseInt((pos + 1) % gConfig.round_length);
@@ -322,6 +328,49 @@ var get_movement_path = function(room_id, chess) {
     }
   }
 
+  // 最终落脚点有没有敌人，如果有就往前移动一格
+  // 这里目前来说，只要检查到有就可以向前跳一格，而不用现在这样
+  // 但是为了以后拓展功能（比如对踩到的敌人做啥啥啥的，可以很方便
+  // 注意：理论上`enemy`数组中的棋子都是引用，修改会导致该`room`的棋子被修改（未测试）
+  var enemy = [];
+  do {
+    // 清空先
+    enemy = [];
+    // 玩家
+    for (var i = 0; i < room.players.length; i++) {
+      if (!room.players[i].gaming || i === room.nowTurn) {
+        // 没有在游戏中，或者是自己的（以后可以改成自己的也不能叠）
+        continue;
+      }
+      // 四颗棋子
+      for (var j = 0; j < 4; j++) {
+        // 在同个格子上的棋子
+        // console.log(room.players[i].chessman[j]);
+        if (room.players[i].chessman[j].status === CHESS_STATUS.FLYING
+          && room.players[i].chessman[j].position === pos) {
+          enemy.push(room.players[i].chessman[j]);
+          console.log('玩家: '+i, room.players[i].chessman[j]);
+        }
+      }
+    }
+    // 如果脚下有敌人，那就向前移动一格
+    if (enemy.length !== 0) {
+      console.log('踩人了！', enemy);
+      // 在外环终点上
+      if (pos === game_path[1]) {
+        pos = game_path[2];
+        res_path.push('pos-' + pos);
+      } else {
+        // 在普通外环上
+        pos = parseInt((pos + 1) % gConfig.round_length);
+        res_path.push('pos-' + pos);
+      }
+    } else {
+      break;
+    }
+  } while (1);
+
+
   // 写回棋子的状态和位置
   rooms_pool[room_id].players[room.nowTurn].chessman[chess].status = status;
   rooms_pool[room_id].players[room.nowTurn].chessman[chess].position = pos;
@@ -338,7 +387,6 @@ var next_turn = function(room_id) {
   room.waitingFor--; // 说明来了一个人
   // 先判断一下还等不等人
   if (room.waitingFor > 0) {
-    console.log('还要等: ', room.waitingFor);
     return false;
   }
 
@@ -356,6 +404,11 @@ var next_turn = function(room_id) {
   }
 
   do {
+    if(room.sameTurn) {
+      // 当前玩家多一回合，不用切换
+      room.sameTurn = false;
+      break;
+    }
     now_turn = (now_turn + 1) % 4; // 最大是四个玩家嘛
     var player = room.players[now_turn];
     if (player.gaming) {

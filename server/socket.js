@@ -182,7 +182,6 @@ io.sockets.on('connection', function(socket) {
 
   // 玩家发送“移动棋子”结束的信号
   socket.on('chess move done', function() {
-    console.log('移动结束:', socket.id);
     var room_id = get_room_of(socket);
     // TODO: 新增的回合阶段从这里开始
     // 这里标志着普通的移动回合结束了
@@ -192,7 +191,6 @@ io.sockets.on('connection', function(socket) {
     if (!next_player) { // 说明还在等人
       return false;
     }
-    console.log('下一回合是: ', next_player);
     if (next_player.game_over) {
       io.in(room_id).emit('game over', next_player);
       sys_chat(room_id, next_player.username + ' 获胜！');

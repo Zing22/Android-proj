@@ -15,8 +15,12 @@ var player_path = [player_path_green, player_path_red, player_path_blue, player_
 // 允许起飞的骰子点数
 var ready_allow = [2, 4, 6];
 
+// 允许再来一回合的数字
+var allow_another_turn = [6,];
+
 module.exports = {
     player_path: player_path,
     ready_allow: ready_allow,
     round_length: round_length,
+    allow_another_turn: allow_another_turn,
 }
