@@ -1,4 +1,4 @@
-# 文件目录
+## Server文件目录
 
 1. **public**: Static files
     - images: Image files
@@ -16,3 +16,24 @@
 9. package.json: npm packages list and etc.
 10. utils.js: Commonly used functions
 11. ecosystem.json: Configuration file for `pm2`
+
+
+## 本地部署
+
+### 首次部署
+0. 安装 node v6.10.2 LTS，打开命令行
+1. `cd /YOUR PATH/Android-proj/server`
+2. `npm install`
+3. `npm install nodev -g`
+
+### 启动服务
+0. 打开命令行
+1. `npm start`
+
+
+## 服务器部署
+0. 打开**git bash**
+1. `ssh syzxb@dragracing.tech` 然后输入服务器密码
+2. `cd ~/Android-proj/server`
+3. `git pull`
+4. `pm2 delete 0 && pm2 start ecosystem.json`
