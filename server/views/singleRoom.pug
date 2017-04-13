@@ -1,0 +1,34 @@
+.title
+    span= title
+    .return.icons
+    //- .settings.icons
+    .nothing.right.icons
+
+.ui.divider.hidden.big
+.ui.divider.hidden.big
+.ui.divider
+.single-room.player.green(chair=0)
+    .chessman
+    .username 空位
+.single-room.player.red(chair=1)
+    .chessman
+    .username 空位
+.single-room.player.blue(chair=2)
+    .chessman
+    .username 空位
+.single-room.player.yellow(chair=3)
+    .chessman
+    .username 空位
+.ui.divider
+.ui.divider.hidden.big
+.single-room.ui.btn.orange.start-game 开始游戏
+.ui.divider.hidden
+.single-room.ui.btn.add-ai 添加AI
+.ui.divider.hidden
+
+.single-room.chat-area
+    .chat.box
+        //- 这个是聊天框
+        .single-room.chat.list
+        .ui.divider.hidden
+        input.single-room.chat.input(type='text', placeholder='按回车键发送' maxlength='30')
