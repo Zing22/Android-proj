@@ -146,6 +146,11 @@ var singleRoom = function() {
     }
   });
 
+  //add AI
+  $('.single-room.add-ai').click(function(event){
+	socket.emit('add AI');
+  });
+
   // 服务器返回是否可以开始游戏
   socket.on('game not ready', function() {
     swal('还有玩家木有准备');
