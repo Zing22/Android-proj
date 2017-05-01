@@ -8,7 +8,7 @@
     <!--add the progress bar here-->
 
     <ListView
-        android:id="@+id/user_list"
+        android:id="@+id/userList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:divider="#0000"
@@ -18,7 +18,7 @@
         android:id="@+id/chatBox"
         android:layout_width="match_parent"
         android:layout_height="60dp"
-        android:layout_below="@id/user_list"/>
+        android:layout_below="@id/userList"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -26,7 +26,7 @@
         android:layout_below="@id/chatBox">
 
         <EditText
-            android:id="@+id/input_text"
+            android:id="@+id/inputBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -39,7 +39,5 @@
             android:layout_height="wrap_content"
             android:text="Send" />
     </LinearLayout>
-
-
 
 </LinearLayout>

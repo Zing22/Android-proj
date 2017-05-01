@@ -12,17 +12,16 @@
                 tools:context="com.dragracing.dragracing.MainActivity">
 
     <Button
+        android:id="@+id/setting1"
         android:text="setting1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/setting1"/>
-
+        android:layout_height="wrap_content"/>
 
     <Button
-        android:text="设置"
+        android:id="@+id/setting2"
+        android:text="setting2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/setting"
         android:layout_below="@id/setting1"/>
 
 </RelativeLayout>

@@ -15,6 +15,7 @@
     </ListView>
 
     <TextView
+        android:id="@+id/chatBox"
         android:layout_width="match_parent"
         android:layout_height="60sp"
         android:layout_weight="1"/>
@@ -25,7 +26,7 @@
         android:layout_weight="1">
 
         <EditText
-            android:id="@+id/input_text"
+            android:id="@+id/inputBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -39,12 +40,14 @@
         android:layout_height="20sp"
         android:layout_weight="1">
         <Button
+            android:id="@+id/addAI"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="add AI"
             android:layout_weight="1"/>
 
         <Button
+            android:id="@+id/startGame"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="start"
