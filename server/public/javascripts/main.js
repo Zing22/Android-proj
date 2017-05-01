@@ -146,6 +146,20 @@ var singleRoom = function() {
     }
   });
 
+  // add AI
+  $('.single-room.add-ai').click(function(event){
+	socket.emit('add AI');
+  });
+
+  // add AI response
+  socket.on('add AI response', function(err) {
+	if (err === 'not host') {
+	  swal('只有房主可以添加AI');
+	} else if (err === 'room full') {
+	  swal('房间已满');
+	}
+  });
+
   // 服务器返回是否可以开始游戏
   socket.on('game not ready', function() {
     swal('还有玩家木有准备');
