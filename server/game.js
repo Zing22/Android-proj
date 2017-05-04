@@ -39,6 +39,8 @@ var Room = {
   }
 }
 
+var AI_id = 0;
+
 // 房间池
 var rooms_pool = {};
 
@@ -54,13 +56,21 @@ const CHESS_STATUS = {
   ARRIVED: 3,
 }
 
+//获取AI_id
+var getAIID = function() {
+  AI_id++;
+  var temp = 'AI'+AI_id;
+  return temp;
+}
+
 // 把一个玩家塞到房间里
 // 已经判断了可行性（有空位）
-var insertPlayer = function(user_id, username, room_id, isHost) {
+var insertPlayer = function(user_id, username, room_id, isHost, isAI) {
   var empty_index = rooms_pool[room_id].players.findIndex(item => item.empty === true);
   rooms_pool[room_id].players[empty_index] = {
     user_id: user_id,
     username: username,
+    ai: isAI,
     host: isHost,
     ready: isHost,
     gaming: false, // 开局后，如果它又变成false，就是离线了
@@ -80,6 +90,8 @@ var insertPlayer = function(user_id, username, room_id, isHost) {
     }],
   }
 
+  if(ai) rooms_pool[room_id].players[empty_index].gaming = true;
+
   return true;
 }
 
@@ -94,7 +106,7 @@ var createRoom = function(user_id, username) {
   console.log('Creater room: ' + room.id);
   rooms_pool[room.id] = room;
 
-  var res = insertPlayer(user_id, username, room.id, isHost = true);
+  var res = insertPlayer(user_id, username, room.id, isHost = true, ai = false);
 
   socket_in_room[user_id] = room.id;
 
@@ -104,8 +116,8 @@ var createRoom = function(user_id, username) {
 
 
 // 有玩家加入房间
-var joinRoom = function(user_id, username, room_id) {
-  insertPlayer(user_id, username, room_id, isHost = false);
+var joinRoom = function(user_id, username, room_id, isAI) {
+  insertPlayer(user_id, username, room_id, isHost = false, ai = isAI);
 
   socket_in_room[user_id] = room_id;
 }
@@ -212,6 +224,7 @@ var turn_to_user = function(room_id) {
   return {
     user_id: rooms_pool[room_id].players[turn].user_id,
     username: rooms_pool[room_id].players[turn].username,
+    ai: rooms_pool[room_id].players[turn].ai,
   };
 }
 
@@ -226,6 +239,15 @@ var random_dice = function(room_id) {
     room.sameTurn = true;
   }
   room.waitingFor = room.gamingCount(); // 说明要等待几个人的动画结束
+
+  var players = room.getPlayers(); // 返回所有不为空的玩家
+  for (var i = 0; i < players.length; i++) {
+    // 有玩家没有准备
+    if (players[i].ai) {
+      room.waitingFor--;
+    }
+  }
+
   return dice;
 }
 
@@ -249,6 +271,12 @@ var get_available = function(room_id) {
     }
   }
   return res;
+}
+
+//返回AI移动的棋子
+var get_ai_chess = function(room_id, dice) {
+  var res = get_available(room_id);
+  return res[0];
 }
 
 
@@ -400,6 +428,7 @@ var next_turn = function(room_id) {
       game_over: true,
       user_id: room.players[old_turn].user_id,
       username: room.players[old_turn].username,
+      ai: room.players[old_turn].ai,
     }; // 返回游戏结束的信息
   }
 
@@ -431,6 +460,7 @@ var next_turn = function(room_id) {
     game_over: false,
     user_id: room.players[now_turn].user_id,
     username: room.players[now_turn].username,
+    ai: room.players[now_turn].ai,
   };
 }
 
@@ -452,6 +482,7 @@ var swap_chair = function(room_id, user_id, dist_chair) {
 }
 
 module.exports = {
+  getAIID: getAIID,
   rooms_pool: rooms_pool,
   createRoom: createRoom,
   joinRoom: joinRoom,
@@ -467,6 +498,7 @@ module.exports = {
   turn_to_user: turn_to_user, // room_id => user
   now_turn: now_turn,
   get_available: get_available,
+  get_ai_chess: get_ai_chess,
   get_movement_path: get_movement_path, // 获取棋子的移动路径
 
   next_turn: next_turn, // 开启新回合

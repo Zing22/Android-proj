@@ -2,6 +2,7 @@ var app = require('./app.js').app;
 var io = require('./app.js').io;
 var game = require('./game.js');
 
+
 // 发送系统消息
 var sys_chat = function(room_id, msg, title = '系统') {
   io.in(room_id).emit('chat msg', '[' + title + ']' + msg);
@@ -27,6 +28,37 @@ var update_room_info = function(socket, room_id, left) {
   }
 }
 
+//AI的移动
+var AI_action = function(socket, room_id, player) {
+  io.in(room_id).emit('turn dice', player);
+  update_room_info(socket, room_id);
+  var timeout = setTimeout(function() {
+    var dice = game.random_dice(room_id); // 它会存到room里的
+    var ai_available = game.get_available(room_id);
+    // 广播掷骰子结果
+    io.in(room_id).emit('dice result', {
+      user_id: player.user_id,
+      dice: dice,
+      player_num: game.now_turn(room_id),
+      available: ai_available, // 放哪些棋子是可以move的，前端要用
+    });
+    //console.log('AI dice:' + dice);
+    var username = game.turn_to_user(room_id).username;
+    sys_chat(room_id, username + ' 掷出 ' + dice);
+
+    var timeout2 = setTimeout(function() {
+      if(ai_available.length !== 0){
+        var num = game.get_ai_chess(room_id, dice);
+        io.in(room_id).emit('chess move', {
+          player_num: game.now_turn(room_id),
+          chess_num: num,
+          move_path: game.get_movement_path(room_id, num),
+        });
+      }
+    }, 1000);
+    
+  }, 1000);
+}
 
 io.sockets.on('connection', function(socket) {
   console.log(socket.id + ' 连接');
@@ -61,8 +93,34 @@ io.sockets.on('connection', function(socket) {
     }
     socket.join(data.room_id);
     // 注意：socket.join比较耗时，异步执行时不能马上体现到socket.rooms上
-    game.joinRoom(socket.id, data.username, data.room_id);
+    game.joinRoom(socket.id, data.username, data.room_id, false);
     socket.emit('room enter', true);
+  });
+  
+  ///玩家添加AI
+  socket.on('add AI', function(data) {
+    room_id = get_room_of(socket);
+    
+    //console.log(game);
+    var p_index = game.rooms_pool[room_id].players.findIndex(item => item.user_id === socket.id);
+    var player = game.rooms_pool[room_id].players[p_index];
+    if(player.host === false){
+      socket.emit('add AI response','not host');
+    }
+    else if(game.rooms_pool[room_id].size() >= 4){
+      socket.emit('add AI response','room full');
+    }
+    else{
+      var AI_id = game.getAIID();
+      game.joinRoom(AI_id, AI_id, room_id, true);
+      game.set_ready(room_id, AI_id, true);
+      update_room_info(socket, room_id, false);
+      io.in(room_id).emit('chat msg', AI_id);
+    }
+    //var res = game.set_ready(room_id, "AI123", true);
+    // if (res) {
+    //   update_room_info(socket);
+    // }
   });
 
   // 玩家加载完房间页面
@@ -130,6 +188,7 @@ io.sockets.on('connection', function(socket) {
       io.in(room_id).emit('game started');
       // 群发一下房间列表
       io.emit('rooms list', game.rooms_pool);
+      console.log(game.rooms_pool);
     } else {
       socket.emit('game not ready');
     }
@@ -143,8 +202,12 @@ io.sockets.on('connection', function(socket) {
     if (turn !== -1) {
       // 返回玩家的user_id 和 username
       var player = game.turn_to_user(room_id);
-      io.in(room_id).emit('turn dice', player);
-      update_room_info(socket, room_id);
+      if(player.ai){
+        AI_action(socket, room_id, player);
+      } else{
+        io.in(room_id).emit('turn dice', player);
+        update_room_info(socket, room_id);  //这句话能去除多余玩家
+      }
     }
   });
 
@@ -182,12 +245,14 @@ io.sockets.on('connection', function(socket) {
 
   // 玩家发送“移动棋子”结束的信号
   socket.on('chess move done', function() {
+    console.log("chess move done!");
     var room_id = get_room_of(socket);
     // TODO: 新增的回合阶段从这里开始
     // 这里标志着普通的移动回合结束了
     // 如果要结算任务什么的应该从这里开始
     // 但是现在没有任务，所以直接进入下一回合
     var next_player = game.next_turn(room_id);
+    console.log(next_player);
     if (!next_player) { // 说明还在等人
       return false;
     }
@@ -195,7 +260,11 @@ io.sockets.on('connection', function(socket) {
       io.in(room_id).emit('game over', next_player);
       sys_chat(room_id, next_player.username + ' 获胜！');
     } else {
-      io.in(room_id).emit('turn dice', next_player);
+      if(next_player.ai){
+        AI_action(socket, room_id, next_player);
+      } else{
+        io.in(room_id).emit('turn dice', next_player);
+      }
     }
   });
 
@@ -216,7 +285,11 @@ io.sockets.on('connection', function(socket) {
         if (change.next_player.game_over) {
           io.in(room_id).emit('game over', change.next_player);
         } else {
-          io.in(room_id).emit('turn dice', change.next_player);
+          if(change.next_player.ai){
+            AI_action(socket, room_id, change.next_player);
+          } else{
+            io.in(room_id).emit('turn dice', change.next_player);
+          }
         }
       }
     }
