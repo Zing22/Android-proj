@@ -295,6 +295,7 @@ var game = function() {
     unset_chess_active(player_colors[now_turn]);
   });
 
+  var chess_move_inter;
   socket.on('chess move', function(data) {
     console.log(data);
     var color = player_colors[data.player_num];
@@ -311,6 +312,7 @@ var game = function() {
         i++;
       }
     }, 300);
+    chess_move_inter = inter;
   });
 
   socket.on('game over', function(data) {
@@ -320,6 +322,9 @@ var game = function() {
   // 点击返回键
   $('.return.icons').click(function(event) {
     socket.emit('leave room');
+    if (chess_move_inter) {
+      chess_move_inter = clearInterval(chess_move_inter);
+    }
     window.switch_page('/rooms');
   });
 }
