@@ -34,6 +34,7 @@ var Room = {
     }
 
     room.waitingFor = 0; // 每个阶段要等待多少个人（播放动画等），用来同步
+    room.ai_waitingFor = 0;
 
     return room;
   }
@@ -95,7 +96,6 @@ var insertPlayer = function(user_id, username, room_id, isHost, isAI) {
   return true;
 }
 
-
 // 玩家创建房间
 var createRoom = function(user_id, username) {
   do {
@@ -122,6 +122,44 @@ var joinRoom = function(user_id, username, room_id, isAI) {
   socket_in_room[user_id] = room_id;
 }
 
+var no_player = function(room_id) {
+  var players = rooms_pool[room_id].getPlayers(); // 返回所有不为空的玩家
+  var ai_num = 0;
+  for (var i = 0; i < players.length; i++) {
+    // 有玩家没有准备
+    if (players[i].ai) {
+      ai_num++;
+    }
+  }
+  console.log("NO: "+rooms_pool[room_id].size()+" "+ai_num);
+  if (rooms_pool[room_id].size() == ai_num) {
+      return true;
+  }
+  return false;
+}
+
+//用于AI同步
+var AI_wait = function(room_id) {
+  var room = rooms_pool[room_id];
+
+  room.ai_waitingFor = room.gamingCount(); // 说明要等待几个人的动画结束
+
+  var players = room.getPlayers(); // 返回所有不为空的玩家
+  for (var i = 0; i < players.length; i++) {
+    // 减掉AI
+    if (players[i].ai) {
+      room.ai_waitingFor--;
+    }
+  }
+  console.log("***:"+room.ai_waitingFor);
+}
+
+var AI_takeAction = function(room_id) {
+  var room = rooms_pool[room_id];
+  room.ai_waitingFor--;
+  console.log("***:"+room.ai_waitingFor);
+  return room.ai_waitingFor;
+}
 
 // 玩家离开房间
 var leaveRoom = function(user_id, room_id) {
@@ -136,6 +174,8 @@ var leaveRoom = function(user_id, room_id) {
 
     if (player.gaming && old.nowTurn === p_index) {
       // 跳过他的回合
+      old.sameTurn = false;
+      old.waitingFor = 0;
       var next_player = next_turn(room_id);
     }
 
@@ -147,10 +187,14 @@ var leaveRoom = function(user_id, room_id) {
     old.players[p_index] = {
       empty: true
     };
+    //console.log("&&:"+rooms_pool[room_id].size());
     if (rooms_pool[room_id].size() == 0) {
       delete rooms_pool[room_id];
+      return "removed";
     } else if (isHost) {
-      var new_host = old.players.findIndex(item => !item.empty);
+      var new_host = old.players.findIndex(item => !item.empty && !item.ai);
+      console.log("host:"+new_host);
+      if(new_host === -1) return "onlyAI";
       old.players[new_host].host = true;
       old.players[new_host].ready = true;
     }
@@ -242,7 +286,7 @@ var random_dice = function(room_id) {
 
   var players = room.getPlayers(); // 返回所有不为空的玩家
   for (var i = 0; i < players.length; i++) {
-    // 有玩家没有准备
+    // 减掉AI
     if (players[i].ai) {
       room.waitingFor--;
     }
@@ -502,4 +546,7 @@ module.exports = {
   get_movement_path: get_movement_path, // 获取棋子的移动路径
 
   next_turn: next_turn, // 开启新回合
+  no_player: no_player,
+  AI_wait: AI_wait,
+  AI_takeAction: AI_takeAction,
 }

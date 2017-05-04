@@ -30,34 +30,9 @@ var update_room_info = function(socket, room_id, left) {
 
 //AI的移动
 var AI_action = function(socket, room_id, player) {
+  game.AI_wait(room_id);
   io.in(room_id).emit('turn dice', player);
   update_room_info(socket, room_id);
-  var timeout = setTimeout(function() {
-    var dice = game.random_dice(room_id); // 它会存到room里的
-    var ai_available = game.get_available(room_id);
-    // 广播掷骰子结果
-    io.in(room_id).emit('dice result', {
-      user_id: player.user_id,
-      dice: dice,
-      player_num: game.now_turn(room_id),
-      available: ai_available, // 放哪些棋子是可以move的，前端要用
-    });
-    //console.log('AI dice:' + dice);
-    var username = game.turn_to_user(room_id).username;
-    sys_chat(room_id, username + ' 掷出 ' + dice);
-
-    var timeout2 = setTimeout(function() {
-      if(ai_available.length !== 0){
-        var num = game.get_ai_chess(room_id, dice);
-        io.in(room_id).emit('chess move', {
-          player_num: game.now_turn(room_id),
-          chess_num: num,
-          move_path: game.get_movement_path(room_id, num),
-        });
-      }
-    }, 1000);
-    
-  }, 1000);
 }
 
 io.sockets.on('connection', function(socket) {
@@ -116,6 +91,7 @@ io.sockets.on('connection', function(socket) {
       game.set_ready(room_id, AI_id, true);
       update_room_info(socket, room_id, false);
       io.in(room_id).emit('chat msg', AI_id);
+      io.emit('rooms list', game.rooms_pool);
     }
     //var res = game.set_ready(room_id, "AI123", true);
     // if (res) {
@@ -155,17 +131,30 @@ io.sockets.on('connection', function(socket) {
     var room_id = get_room_of(socket);
     socket.leave(room_id); // 从socket的rooms list里面删去
     var change = game.leaveRoom(socket.id, room_id);
+    console.log("**"+change);
+    if(change === "onlyAI"){
+      //已经没有玩家
+      var noPlayer = game.no_player(room_id);
+      if(noPlayer){
+        delete game.rooms_pool[room_id]; //room_id没有了无法执行此操作！！
+        io.emit('rooms list', game.rooms_pool);
+        return;
+      }
+    }
+
     if (change) {
       // 通知一下在房间里的人
       update_room_info(socket, room_id, change.username);
       // 群发一下房间列表
       io.emit('rooms list', game.rooms_pool);
-
+      console.log("Here:"+change.next_player);
       if (change.next_player) {
         // 说明当前回合的玩家离开了
         if (change.next_player.game_over) {
           io.in(room_id).emit('game over', change.next_player);
         } else {
+          console.log("Here!");
+          game.AI_wait(room_id);
           io.in(room_id).emit('turn dice', change.next_player);
         }
       }
@@ -202,12 +191,34 @@ io.sockets.on('connection', function(socket) {
     if (turn !== -1) {
       // 返回玩家的user_id 和 username
       var player = game.turn_to_user(room_id);
-      if(player.ai){
-        AI_action(socket, room_id, player);
-      } else{
-        io.in(room_id).emit('turn dice', player);
-        update_room_info(socket, room_id);  //这句话能去除多余玩家
-      }
+      game.AI_wait(room_id);
+      io.in(room_id).emit('turn dice', player);
+      update_room_info(socket, room_id);  //这句话能去除多余玩家
+    }
+  });
+  // AI接受前端turn dice处理完信号
+  var ai_dice;
+  socket.on('turn dice done', function() {
+    var room_id = get_room_of(socket);
+    var p_index = game.now_turn(room_id);
+    var player = game.rooms_pool[room_id].players[p_index];
+    if(!player.ai) return;
+
+    if(game.AI_takeAction(room_id) === 0) {
+      var dice = game.random_dice(room_id); // 它会存到room里的
+      ai_dice = dice;
+      var ai_available = game.get_available(room_id);
+      game.AI_wait(room_id);
+      // 广播掷骰子结果
+      io.in(room_id).emit('dice result', {
+        user_id: player.user_id,
+        dice: dice,
+        player_num: game.now_turn(room_id),
+        available: ai_available, // 放哪些棋子是可以move的，前端要用
+      });
+      //console.log('AI dice:' + dice);
+      var username = game.turn_to_user(room_id).username;
+      sys_chat(room_id, username + ' 掷出 ' + dice);
     }
   });
 
@@ -229,6 +240,26 @@ io.sockets.on('connection', function(socket) {
     sys_chat(room_id, username + ' 掷出 ' + dice);
   });
 
+  // AI接受前端dice result处理完信号
+  socket.on('dice result done', function() {
+    var room_id = get_room_of(socket);
+    var p_index = game.now_turn(room_id);
+    var player = game.rooms_pool[room_id].players[p_index];
+    if(!player.ai) return;
+
+    if(game.AI_takeAction(room_id) === 0) {
+      var dice = ai_dice // 它会存到room里的
+      var ai_available = game.get_available(room_id);
+      if(ai_available.length !== 0){
+        var num = game.get_ai_chess(room_id, dice);
+        io.in(room_id).emit('chess move', {
+          player_num: game.now_turn(room_id),
+          chess_num: num,
+          move_path: game.get_movement_path(room_id, num),
+        });
+      }
+    }
+  });
 
   // 玩家选择移动棋子
   socket.on('move chessman', function(num) {
@@ -245,14 +276,13 @@ io.sockets.on('connection', function(socket) {
 
   // 玩家发送“移动棋子”结束的信号
   socket.on('chess move done', function() {
-    console.log("chess move done!");
+    //console.log("chess move done!");
     var room_id = get_room_of(socket);
     // TODO: 新增的回合阶段从这里开始
     // 这里标志着普通的移动回合结束了
     // 如果要结算任务什么的应该从这里开始
     // 但是现在没有任务，所以直接进入下一回合
     var next_player = game.next_turn(room_id);
-    console.log(next_player);
     if (!next_player) { // 说明还在等人
       return false;
     }
@@ -260,11 +290,8 @@ io.sockets.on('connection', function(socket) {
       io.in(room_id).emit('game over', next_player);
       sys_chat(room_id, next_player.username + ' 获胜！');
     } else {
-      if(next_player.ai){
-        AI_action(socket, room_id, next_player);
-      } else{
-        io.in(room_id).emit('turn dice', next_player);
-      }
+      game.AI_wait(room_id);
+      io.in(room_id).emit('turn dice', next_player);
     }
   });
 
@@ -285,11 +312,8 @@ io.sockets.on('connection', function(socket) {
         if (change.next_player.game_over) {
           io.in(room_id).emit('game over', change.next_player);
         } else {
-          if(change.next_player.ai){
-            AI_action(socket, room_id, change.next_player);
-          } else{
-            io.in(room_id).emit('turn dice', change.next_player);
-          }
+          game.AI_wait(room_id);
+          io.in(room_id).emit('turn dice', change.next_player);
         }
       }
     }
