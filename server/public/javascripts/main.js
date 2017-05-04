@@ -240,6 +240,7 @@ var game = function() {
       // 谁的回合
       $('.title > span').text(data.username + ' 的回合...');
     }
+    socket.emit('turn dice done');
   });
 
   $('.game.dice-box').click(function(event) {
@@ -283,6 +284,7 @@ var game = function() {
           set_chess_active(player_colors[data.player_num], data.available);
           now_turn = data.player_num; // 存起来下面用
         }
+        socket.emit('dice result done');
       });
     }, 1000);
   });
@@ -363,7 +365,7 @@ $(document).ready(function() {
 
     var setting_width = $('.settings-box').width();
     $('.settings-box').css('left', ($(window).width() - setting_width)/2).hide();
-    
+
   }
   init_window();
 
