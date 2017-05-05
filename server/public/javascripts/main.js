@@ -92,11 +92,20 @@ var singleRoom = function() {
   window.player_colors = ['green', 'red', 'blue', 'yellow'];
   socket.on('players info', function(players) {
     console.log(players);
+		
+		var isHost = false;
+		for (var i = 0; i < players.length; i++) {
+			if (players[i].user_id == window.user_id) {
+				isHost = players[i].host;
+			}
+		}
+		
     for (var i = 0; i < players.length; i++) {
       // 空位
       if (players[i].empty) {
-        $('.single-room.player.' + player_colors[i]).addClass('empty').click(function(event) {
-          socket.emit('swap chair', $(this).attr('chair'));
+        $('.single-room.player.' + player_colors[i]).addClass('empty');
+				$('.single-room.player.' + player_colors[i] + ' > .chessman').click(function(event) {
+          socket.emit('swap chair', $(this).parent().attr('chair'));
         });
         $('.single-room.player.' + player_colors[i] + ' > .username').text('空位');
         continue;
@@ -116,6 +125,18 @@ var singleRoom = function() {
       if (players[i].host) {
         $('.title > span').text(players[i].username + ' 的房间');
       }
+			
+			// 添加删除AI的按钮
+			var close_icon = $('.single-room.player.' + player_colors[i] + ' > .close');
+			if (isHost && players[i].ai) {
+				var ai_id = players[i].user_id;
+				close_icon.removeClass('hidden').click(function(event){
+					socket.emit('remove AI', ai_id);
+				})
+			} else {
+				close_icon.addClass('hidden');
+				close_icon.unbind('click');
+			}
 
       if (players[i].user_id == window.user_id) {
         if (players[i].host) {

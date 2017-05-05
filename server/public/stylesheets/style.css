@@ -201,6 +201,26 @@ body {
   background-color: rgba(255,255,255,0.2);
 }
 
+.player > .close {
+  height: 35px;
+  width: 35px;
+  box-sizing: border-box;
+  cursor: pointer;
+  margin-top: 3px;
+  margin-right: 3px;
+  
+  display: inline;
+
+  background-image: url('/images/logos/close.png');
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+
+  float: right;
+}
+.player > .close:hover {
+  background-color: rgba(255,255,255,0.2);
+}
+
 /* 用来占位 */
 .settings-title > .nothing {
   height: 35px;

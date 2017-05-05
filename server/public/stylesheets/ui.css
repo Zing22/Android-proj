@@ -40,3 +40,9 @@
     height: 40px;
     background-color: transparent;
 }
+
+.close.icons.hidden {
+    width: 0;
+    height: 0;
+    background-color: transparent;
+}
