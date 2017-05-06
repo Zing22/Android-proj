@@ -151,13 +151,13 @@ var AI_wait = function(room_id) {
       room.ai_waitingFor--;
     }
   }
-  console.log("***:"+room.ai_waitingFor);
+  //console.log("***:"+room.ai_waitingFor);
 }
 
 var AI_takeAction = function(room_id) {
   var room = rooms_pool[room_id];
   room.ai_waitingFor--;
-  console.log("***:"+room.ai_waitingFor);
+  //console.log("***:"+room.ai_waitingFor);
   return room.ai_waitingFor;
 }
 
@@ -319,7 +319,18 @@ var get_available = function(room_id) {
 
 //返回AI移动的棋子
 var get_ai_chess = function(room_id, dice) {
+  var room = rooms_pool[room_id];
+  var player = room.players[room.nowTurn];
   var res = get_available(room_id);
+
+  console.log(dice+" && "+res[0]);
+
+  if(dice === 6) return res[0];
+
+  for(var i = 0; i < res.length; ++i) {
+    if( player.chessman[res[i]].status === CHESS_STATUS.NOT_READY) return res[i];
+  }
+
   return res[0];
 }
 
@@ -405,6 +416,8 @@ var get_movement_path = function(room_id, chess) {
   // 但是为了以后拓展功能（比如对踩到的敌人做啥啥啥的，可以很方便
   // 注意：理论上`enemy`数组中的棋子都是引用，修改会导致该`room`的棋子被修改（未测试）
   var enemy = [];
+  var enemy_num = -1;
+  var enemy_arr = [];
   do {
     // 清空先
     enemy = [];
@@ -420,26 +433,33 @@ var get_movement_path = function(room_id, chess) {
         // console.log(room.players[i].chessman[j]);
         if (room.players[i].chessman[j].status === CHESS_STATUS.FLYING
           && room.players[i].chessman[j].position === pos) {
+          enemy_num = i;
           enemy.push(room.players[i].chessman[j]);
+          enemy_arr.push(j);
           console.log('玩家: '+i, room.players[i].chessman[j]);
         }
       }
     }
     // 如果脚下有敌人，那就向前移动一格
     if (enemy.length !== 0) {
+      for(var i = 0; i < enemy.length; ++i) {
+        enemy[i].status = CHESS_STATUS.NOT_READY;
+        enemy[i].position = -1;
+      }
       console.log('踩人了！', enemy);
       // 在外环终点上
-      if (pos === game_path[1]) {
-        pos = game_path[2];
-        res_path.push('pos-' + pos);
-      } else {
-        // 在普通外环上
-        pos = parseInt((pos + 1) % gConfig.round_length);
-        res_path.push('pos-' + pos);
-      }
-    } else {
-      break;
+    //   if (pos === game_path[1]) {
+    //     pos = game_path[2];
+    //     res_path.push('pos-' + pos);
+    //   } else {
+    //     // 在普通外环上
+    //     pos = parseInt((pos + 1) % gConfig.round_length);
+    //     res_path.push('pos-' + pos);
+    //   }
+    // } else {
+    //  break;
     }
+    break;
   } while (1);
 
 
@@ -448,7 +468,7 @@ var get_movement_path = function(room_id, chess) {
   rooms_pool[room_id].players[room.nowTurn].chessman[chess].position = pos;
 
   // 返回值
-  return res_path;
+  return [res_path, enemy_num, enemy_arr];
 }
 
 

@@ -99,6 +99,14 @@ io.sockets.on('connection', function(socket) {
     // }
   });
 
+  socket.on('remove AI', function(AI_id) {
+    room_id = get_room_of(socket);    
+    game.leaveRoom(AI_id, room_id);
+
+    update_room_info(socket, room_id, false);
+    io.emit('rooms list', game.rooms_pool);
+  });
+
   // 玩家加载完房间页面
   socket.on('in room', function() {
     var room_id = get_room_of(socket);
@@ -252,10 +260,13 @@ io.sockets.on('connection', function(socket) {
       var ai_available = game.get_available(room_id);
       if(ai_available.length !== 0){
         var num = game.get_ai_chess(room_id, dice);
+        var res = game.get_movement_path(room_id, num);
         io.in(room_id).emit('chess move', {
           player_num: game.now_turn(room_id),
           chess_num: num,
-          move_path: game.get_movement_path(room_id, num),
+          move_path: res[0],
+          enemy_num: res[1],
+          enemy_array: res[2],
         });
       }
     }
@@ -265,11 +276,14 @@ io.sockets.on('connection', function(socket) {
   socket.on('move chessman', function(num) {
     // 知道玩家要移动第几个棋子，也知道玩家
     var room_id = get_room_of(socket);
+    var res = game.get_movement_path(room_id, num);
     // 返回玩家序号，棋子序号，棋子的移动路径
     io.in(room_id).emit('chess move', {
       player_num: game.now_turn(room_id),
       chess_num: num,
-      move_path: game.get_movement_path(room_id, num),
+      move_path: res[0],
+      enemy_num: res[1],
+      enemy_array: res[2],
     });
   });
 

@@ -101,6 +101,11 @@ var singleRoom = function() {
 		}
 		
     for (var i = 0; i < players.length; i++) {
+			// 隐藏删除AI的按钮
+			var close_icon = $('.single-room.player.' + player_colors[i] + ' > .close');
+			close_icon.addClass('hidden');
+			close_icon.unbind('click');
+			
       // 空位
       if (players[i].empty) {
         $('.single-room.player.' + player_colors[i]).addClass('empty');
@@ -127,15 +132,10 @@ var singleRoom = function() {
       }
 			
 			// 添加删除AI的按钮
-			var close_icon = $('.single-room.player.' + player_colors[i] + ' > .close');
 			if (isHost && players[i].ai) {
-				var ai_id = players[i].user_id;
 				close_icon.removeClass('hidden').click(function(event){
-					socket.emit('remove AI', ai_id);
+					socket.emit('remove AI', players[$(this).parent().attr('chair')].user_id);
 				})
-			} else {
-				close_icon.addClass('hidden');
-				close_icon.unbind('click');
 			}
 
       if (players[i].user_id == window.user_id) {
@@ -322,10 +322,19 @@ var game = function() {
     var color = player_colors[data.player_num];
     var move_path = data.move_path;
     var $chess = $('.game.chessman.' + color + '.num-' + data.chess_num);
+		var enemy_num = data.enemy_num;
+		var attacked_chess = data.enemy_array;
     var i = 1;
     var inter = setInterval(function() {
       if (i >= move_path.length) {
         // 移动完了
+				if (attacked_chess.length) { 	//有棋子被踩
+					for (var j = 0; j < attacked_chess.length; j++) {
+						var $achess = $('.game.chessman.' + player_colors[enemy_num] + '.num-' + attacked_chess[j]);
+						$achess.removeClass(move_path[i-1]).addClass('not-ready');
+					}
+				}
+				
         socket.emit('chess move done'); // 注意，四个玩家都会发这个给服务器
         clearInterval(inter); // 停止无限循环
       } else {
@@ -333,6 +342,7 @@ var game = function() {
         i++;
       }
     }, 300);
+    console.log(inter);
     chess_move_inter = inter;
   });
 
