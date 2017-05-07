@@ -265,8 +265,7 @@ io.sockets.on('connection', function(socket) {
           player_num: game.now_turn(room_id),
           chess_num: num,
           move_path: res[0],
-          enemy_num: res[1],
-          enemy_array: res[2],
+          enemy_pair: res[1],
         });
       }
     }
@@ -282,8 +281,7 @@ io.sockets.on('connection', function(socket) {
       player_num: game.now_turn(room_id),
       chess_num: num,
       move_path: res[0],
-      enemy_num: res[1],
-      enemy_array: res[2],
+      enemy_pair: res[1],
     });
   });
 

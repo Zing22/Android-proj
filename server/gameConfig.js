@@ -9,6 +9,9 @@ var player_path_red = [12, 9, 53, 73];
 var player_path_blue = [25, 22, 54, 74];
 var player_path_yellow = [38, 35, 55, 75];
 
+// 飞机场撞人点
+var air_hit_point = [62, 63, 60, 61];
+
 // 所有玩家的飞行路径
 var player_path = [player_path_green, player_path_red, player_path_blue, player_path_yellow];
 

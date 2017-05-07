@@ -341,9 +341,11 @@ var get_movement_path = function(room_id, chess) {
   var dice = room.dice;
   var player = room.players[room.nowTurn];
   var game_path = gConfig.player_path[room.nowTurn];
+  var hit_point = gConfig.air_hit_point;
   var chessman = player.chessman[chess];
   var status = chessman.status;
   var pos = chessman.position;
+  var check_pos = {};
 
   // 最终要返回的路径
   var res_path = [];
@@ -388,7 +390,7 @@ var get_movement_path = function(room_id, chess) {
     }
     dice--;
   }
-
+  check_pos.push(pos);
   // 判断能不能同色跳
   if (status === CHESS_STATUS.FLYING &&
     pos % 4 === room.nowTurn &&
@@ -399,15 +401,20 @@ var get_movement_path = function(room_id, chess) {
       // 在加油站起点
       pos = (pos + 4 * 3) % gConfig.round_length; // 飞过去
       res_path.push('pos-' + pos);
+      check_pos.push(hit_point[room.nowTurn]);
+      check_pos.push(pos);
     }
     // 跳一下
     pos = (pos + 4) % gConfig.round_length;
     res_path.push('pos-' + pos);
+    check_pos.push(pos);
     // 再判断在不在加油站起点
     if (pos === (game_path[0] + 1 + 4 * 4) % gConfig.round_length) {
       // 在加油站起点
       pos = (pos + 4 * 3) % gConfig.round_length; // 飞过去
       res_path.push('pos-' + pos);
+      check_pos.push(hit_point[room.nowTurn]);
+      check_pos.push(pos);
     }
   }
 
@@ -416,9 +423,8 @@ var get_movement_path = function(room_id, chess) {
   // 但是为了以后拓展功能（比如对踩到的敌人做啥啥啥的，可以很方便
   // 注意：理论上`enemy`数组中的棋子都是引用，修改会导致该`room`的棋子被修改（未测试）
   var enemy = [];
-  var enemy_num = -1;
-  var enemy_arr = [];
-  do {
+  var enemy_pair = [];
+  for(var k = 0; k < check_pos.length; ++k) {
     // 清空先
     enemy = [];
     // 玩家
@@ -432,10 +438,9 @@ var get_movement_path = function(room_id, chess) {
         // 在同个格子上的棋子
         // console.log(room.players[i].chessman[j]);
         if (room.players[i].chessman[j].status === CHESS_STATUS.FLYING
-          && room.players[i].chessman[j].position === pos) {
-          enemy_num = i;
+          && room.players[i].chessman[j].position === check_pos[k]) {
           enemy.push(room.players[i].chessman[j]);
-          enemy_arr.push(j);
+          enemy_pair.push([i, j]);
           console.log('玩家: '+i, room.players[i].chessman[j]);
         }
       }
@@ -460,7 +465,7 @@ var get_movement_path = function(room_id, chess) {
     //  break;
     }
     break;
-  } while (1);
+  }
 
 
   // 写回棋子的状态和位置
@@ -468,7 +473,7 @@ var get_movement_path = function(room_id, chess) {
   rooms_pool[room_id].players[room.nowTurn].chessman[chess].position = pos;
 
   // 返回值
-  return [res_path, enemy_num, enemy_arr];
+  return [res_path, enemy_pair];
 }
 
 
