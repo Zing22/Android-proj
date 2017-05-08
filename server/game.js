@@ -345,7 +345,7 @@ var get_movement_path = function(room_id, chess) {
   var chessman = player.chessman[chess];
   var status = chessman.status;
   var pos = chessman.position;
-  var check_pos = {};
+  var check_pos = [];
 
   // 最终要返回的路径
   var res_path = [];
@@ -440,7 +440,7 @@ var get_movement_path = function(room_id, chess) {
         if (room.players[i].chessman[j].status === CHESS_STATUS.FLYING
           && room.players[i].chessman[j].position === check_pos[k]) {
           enemy.push(room.players[i].chessman[j]);
-          enemy_pair.push([i, j]);
+          enemy_pair.push([i, j, check_pos[k]]);
           console.log('玩家: '+i, room.players[i].chessman[j]);
         }
       }

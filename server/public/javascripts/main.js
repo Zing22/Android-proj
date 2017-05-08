@@ -322,25 +322,37 @@ var game = function() {
     var color = player_colors[data.player_num];
     var move_path = data.move_path;
     var $chess = $('.game.chessman.' + color + '.num-' + data.chess_num);
-		var enemy_num = data.enemy_num;
-		var attacked_chess = data.enemy_array;
-    var i = 1;
+		var attacked_chess = data.enemy_pair;
+		attacked_chess.push([0,0,'NaN']);
+    var i = 1, j = 0;
     var inter = setInterval(function() {
       if (i >= move_path.length) {
-        // 移动完了
-				if (attacked_chess.length) { 	//有棋子被踩
-					for (var j = 0; j < attacked_chess.length; j++) {
-						var $achess = $('.game.chessman.' + player_colors[enemy_num] + '.num-' + attacked_chess[j]);
-						$achess.removeClass(move_path[i-1]).addClass('not-ready');
-					}
-				}
-				
+        // 移动完了			
         socket.emit('chess move done'); // 注意，四个玩家都会发这个给服务器
         clearInterval(inter); // 停止无限循环
       } else {
         $chess.removeClass(move_path[i - 1]).addClass(move_path[i]);
-        i++;
-      }
+        
+				// 过加油站踩人
+				if (parseInt(attacked_chess[j][2].substr(4)) >= 60) {
+					var m1 = parseInt(move_path[i-1].substr(4));
+					var m2 = parseInt(move_path[i].substr(4));
+					if (m2 - m1 == 12 || m1 - m2 == 40) {
+						var $achess = $('.game.chessman.' + player_colors[attacked_chess[j][0]] + '.num-' + attacked_chess[j][1]);
+						$achess.removeClass(attacked_chess[j][2]).addClass('not-ready');
+						j++;
+					}
+				}
+				
+				// 普通踩人
+				if (attacked_chess[j][2] == move_path[i]) {
+					var $achess = $('.game.chessman.' + player_colors[attacked_chess[j][0]] + '.num-' + attacked_chess[j][1]);
+					$achess.removeClass(attacked_chess[j][2]).addClass('not-ready');
+					j++;
+				}
+				
+				i++;
+			}
     }, 300);
     console.log(inter);
     chess_move_inter = inter;
