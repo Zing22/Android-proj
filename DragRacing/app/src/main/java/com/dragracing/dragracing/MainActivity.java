@@ -1,9 +1,22 @@
 package com.dragracing.dragracing;
 
+import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.Window;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -11,12 +24,48 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Log.w("MainActivity", "aaa");
+
+//        WebView webView = (WebView)findViewById(R.id.web);
+//        webView.getSettings().setJavaScriptEnabled(true);
+//        webView.setWebViewClient(new WebViewClient());
+//        webView.loadUrl("http://www.baidu.com");
+
+        Button btn1 = (Button)this.findViewById(R.id.button_game);
+        btn1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent();
+                intent.setClass(MainActivity.this, RoomsActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        Button btn2 = (Button)this.findViewById(R.id.button_settings);
+        btn2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent();
+                intent.setClass(MainActivity.this, SettingActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        Button btn3 = (Button)this.findViewById(R.id.button_about);
+        btn3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Boolean fa = Data.createSocket();
+                if(!fa){
+                    Toast.makeText(MainActivity.this, "Connect failed!", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(MainActivity.this, "Connect success!", Toast.LENGTH_SHORT).show();
+                }
+
+                Data.emitRandomName();
+            }
+        });
     }
-
-    public void onClickStartGame(View view){
-        Intent intent = new Intent(this, HouseList.class);
-        startActivity(intent);
-    }
-
-
 }
