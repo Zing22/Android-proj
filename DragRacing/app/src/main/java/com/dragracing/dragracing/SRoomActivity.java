@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import java.io.Serializable;
+
 public class SRoomActivity extends AppCompatActivity {
     final DRSGame.PlayerType[] playerType = new DRSGame.PlayerType[4];
     int[] btn_names = {R.id.button1_sroom,R.id.button2_sroom,R.id.button3_sroom,R.id.button4_sroom};
@@ -64,6 +66,7 @@ public class SRoomActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent();
                 intent.setClass(SRoomActivity.this, SPlayActivity.class);
+                intent.putExtra("playerType", (Serializable)playerType);
                 startActivity(intent);
             }
         });

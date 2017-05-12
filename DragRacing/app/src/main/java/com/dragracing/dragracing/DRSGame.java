@@ -48,12 +48,6 @@ public class DRSGame {
             players = new int[num_event];
             airs = new int[num_event];
         }
-
-        public void merge(StepEvent e){
-            //StepEvent e3 = new StepEvent();
-            //e3.init(e1.num_event + e2.num_event);
-
-        }
     }
     public StepEvent merge(StepEvent e1, StepEvent e2){
         StepEvent e3 = new StepEvent();
@@ -195,13 +189,20 @@ public class DRSGame {
         return res;
     }
 
+    public PlayerType getCurPlayerType(){
+        return playerType[cur_player];
+    }
+
     public ArrayList<Integer> getCandidateAir(int dice){
         ArrayList<Integer> res = new ArrayList<Integer>();
 
         for(int i=0;i<4;++i){
             if(airPos[cur_player][i] == AIROFF){
-                if(Arrays.asList(READYDICE).contains(dice))
-                    res.add(i);
+                for(int j=0;j<READYDICE.length;++j)
+                    if(READYDICE[j] == dice){
+                        res.add(i);
+                        break;
+                    }
             }
             else if(airPos[cur_player][i] == AIREND)
                 continue;
@@ -251,9 +252,9 @@ public class DRSGame {
     public StepEvent makeGoEvent(int rbeg, int rend){
         StepEvent res = new StepEvent();
         res.init(rend-rbeg);
-        for(int i=rbeg+1;i<rend;++i){
-            res.poses[i] = i;
-            res.hits[i] = false;
+        for(int i=rbeg+1;i<=rend;++i){
+            res.poses[i-rbeg-1] = i;
+            res.hits[i-rbeg-1] = false;
         }
         return res;
     }
