@@ -25,13 +25,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Log.w("MainActivity", "aaa");
-
-//        WebView webView = (WebView)findViewById(R.id.web);
-//        webView.getSettings().setJavaScriptEnabled(true);
-//        webView.setWebViewClient(new WebViewClient());
-//        webView.loadUrl("http://www.baidu.com");
-
         Button btn1 = (Button)this.findViewById(R.id.button_game);
         btn1.setOnClickListener(new View.OnClickListener() {
             @Override
