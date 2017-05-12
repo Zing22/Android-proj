@@ -5,10 +5,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
+import android.widget.TextView;
+
+import com.jero.multiviewanimation_library.AnimManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 public class SPlayActivity extends AppCompatActivity {
@@ -19,6 +25,31 @@ public class SPlayActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splay);
+
+        TextView textView = (TextView)this.findViewById(R.id.textView5);
+//        Animation animation = new TranslateAnimation(220, 700, 220, 700);
+//        animation.setDuration(5000);
+//        animation.setRepeatCount(222);
+//        textView.setAnimation(animation);
+//        animation.startNow();
+
+        textView.setX(200);
+        textView.setY(800);
+
+//        List<View> views = new ArrayList<>();
+//        List<Animation> anims = new ArrayList<>();
+//
+//        views.add(textView);
+//        views.add(textView);
+//        Animation animation = new TranslateAnimation(220, 700, 220, 700);
+//        animation.setDuration(5000);
+//        anims.add(animation);
+//        animation = new TranslateAnimation(700, 1000, 700, 300);
+//        animation.setDuration(5000);
+//        anims.add(animation);
+//
+//        AnimManager animManager = new AnimManager(views, anims);
+//        animManager.startAnimation();
 
         Button btn_dice = (Button)this.findViewById(R.id.button_dice_splay);
         btn_dice.setOnClickListener(new View.OnClickListener() {
