@@ -27,11 +27,12 @@
             android:label="@string/rooms_ac_title" />
         <activity
             android:name=".RoomActivity"
-            android:label="@string/room_ac_title"></activity>
+            android:label="@string/room_ac_title" />
         <activity
             android:name=".PlayActivity"
-            android:label="@string/play_ac_title">
-        </activity>
+            android:label="@string/play_ac_title" />
+        <activity android:name=".SRoomActivity" />
+        <activity android:name=".SPlayActivity"></activity>
     </application>
 
 </manifest>
