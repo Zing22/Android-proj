@@ -9,6 +9,7 @@ import java.util.Random;
 public class DRSGame {
     public enum GameState{OFF,READY,PLAYING,END}
     public enum PlayerType{EMPTY,PEOPLE,AI,INTERPEOPLE}
+    public enum TurnState{WAIT_DICE,WAIT_AIR,WAIT_INTER_DICE,WAIT_INTER_AIR,ANIMATING,OTHER}
     public int[] READYDICE = {2,4,6};
 
     //public int OUTBEGPOS = 0;
@@ -31,6 +32,7 @@ public class DRSGame {
     public int[][] airPos;
     public Random randomDice;
 
+    public TurnState turnState;
     public int cur_turn;
     public int cur_player;
     public int cur_air;
@@ -72,7 +74,8 @@ public class DRSGame {
     }
 
     public DRSGame(){
-        gameState=GameState.OFF;
+        gameState = GameState.OFF;
+        turnState = TurnState.OTHER;
     }
 
     public void doReady(PlayerType[] players){
@@ -189,6 +192,10 @@ public class DRSGame {
             }
         }
 
+        for(int i=0;i<res.num_event;++i)
+            if(res.hits[i])
+                airPos[res.players[i]][res.airs[i]] = AIROFF;
+
         return res;
     }
 
@@ -229,6 +236,10 @@ public class DRSGame {
             return playerPos[iplayer]*5+52 + rpos-INBEGPOS;
     }
 
+    public int getapos(int iplayer, int iAir){
+        return rpos2apos(iplayer, airPos[iplayer][iAir]);
+    }
+
     public ArrayList<Pair<Integer,Integer>> getAir(int apos){
         ArrayList<Pair<Integer,Integer>> res = new ArrayList<>();
 
@@ -266,6 +277,7 @@ public class DRSGame {
         StepEvent res = new StepEvent();
         res.init(airs.size());
         for(int i=0;i<airs.size();++i){
+            res.poses[i] = airPos[airs.get(i).first][airs.get(i).second];
             res.hits[i] = true;
             res.players[i] = airs.get(i).first;
             res.airs[i] = airs.get(i).second;
@@ -353,7 +365,7 @@ public class DRSGame {
             {79,47},{73.8,47},{68.6,47},{63.4,47},{58.2,47},
             {47.5,80},{47.5,74.6},{47.5,69.2},{47.5,63.8},{47.5,58.4},
     };
-    double[][] ppos_end = {
+    double[][] ppos_win = {
             {42.1,47.1},{47.6,41.8},{53,47},{47.5,53}
     };
 }
