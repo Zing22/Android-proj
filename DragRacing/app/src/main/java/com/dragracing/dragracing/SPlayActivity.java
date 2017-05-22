@@ -20,25 +20,29 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+//单机游戏界面
+
 public class SPlayActivity extends AppCompatActivity {
-    DRSGame drsGame;
-    int cur_dice;
-    Button btn_dice;
-    Button[] btn_airs;
+    DRSGame drsGame;//游戏类
+    int cur_dice;//骰子点数
+    Button btn_dice;//骰子按钮
+    Button[] btn_airs;//飞机按钮
+    //所有飞机贴图的id
     int[][] air_id = {
             {R.id.air_1_1_splay,R.id.air_1_2_splay,R.id.air_1_3_splay,R.id.air_1_4_splay},
             {R.id.air_2_1_splay,R.id.air_2_2_splay,R.id.air_2_3_splay,R.id.air_2_4_splay},
             {R.id.air_3_1_splay,R.id.air_3_2_splay,R.id.air_3_3_splay,R.id.air_3_4_splay},
             {R.id.air_4_1_splay,R.id.air_4_2_splay,R.id.air_4_3_splay,R.id.air_4_4_splay}
     };
-    ImageView[][] image_airs;
-    FrameLayout layout_airs;
+    ImageView[][] image_airs;//飞机贴图对象
+    FrameLayout layout_airs;//游戏棋盘的布局
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splay);
 
+        //测试用
         TextView textView = (TextView)this.findViewById(R.id.textView5);
 //        Animation animation = new TranslateAnimation(220, 700, 220, 700);
 //        animation.setDuration(5000);
@@ -64,21 +68,24 @@ public class SPlayActivity extends AppCompatActivity {
 //        AnimManager animManager = new AnimManager(views, anims);
 //        animManager.startAnimation();
 
+        //句柄获取
+        //骰子按钮
         btn_dice = (Button)this.findViewById(R.id.button_dice_splay);
-
+        //飞机按钮
         int[] btn_airs_id = {R.id.button_air1_splay,R.id.button_air2_splay,R.id.button_air3_splay,R.id.button_air4_splay};
         btn_airs = new Button[4];
         for(int i=0;i<4;++i)
             btn_airs[i] = (Button)this.findViewById(btn_airs_id[i]);
-
+        //飞机贴图
         image_airs = new ImageView[4][4];
         for(int i=0;i<4;++i)
             for(int j=0;j<4;++j)
                 image_airs[i][j] = (ImageView)this.findViewById(air_id[i][j]);
-
+        //棋盘布局
         layout_airs = (FrameLayout) this.findViewById(R.id.layout_airs_splay);
 
-
+        //事件设置
+        //骰子按钮
         btn_dice.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -99,7 +106,7 @@ public class SPlayActivity extends AppCompatActivity {
                 }
             }
         });
-
+        //飞机按钮
         for(int i=0;i<4;++i){
             final int ix = i;
             btn_airs[i].setOnClickListener(new View.OnClickListener(){
@@ -126,15 +133,17 @@ public class SPlayActivity extends AppCompatActivity {
             });
         }
 
-
+        //获取玩家信息
         Intent intent = this.getIntent();
         DRSGame.PlayerType[] playerType = (DRSGame.PlayerType[])intent.getSerializableExtra("playerType");
 
+        //开始游戏
         drsGame = new DRSGame();
         drsGame.doReady(playerType);
         drsGame.doPlay();
     }
 
+    //窗口加载完后,加载飞机贴图,开始执行游戏
     @Override
     public void onWindowFocusChanged(boolean hasFocus)
     {
@@ -150,6 +159,7 @@ public class SPlayActivity extends AppCompatActivity {
         }
     }
 
+    //执行AI的回合,直到真实玩家操作为止
     public void play(){
         while(drsGame.getCurPlayerType() == DRSGame.PlayerType.AI){
             int dice = drsGame.getDice();
@@ -185,6 +195,7 @@ public class SPlayActivity extends AppCompatActivity {
         setButtonEnable();
     }
 
+    //执行动画事件
     public void doEvent(DRSGame.StepEvent events){
         for(int i=0;i<events.num_event;++i){
             if(events.hits[i]){//hit event
@@ -196,6 +207,7 @@ public class SPlayActivity extends AppCompatActivity {
         }
     }
 
+    //设置骰子按钮和飞机按钮是否可点击
     public void setButtonEnable(){
         if(drsGame.turnState == DRSGame.TurnState.WAIT_DICE){
             btn_dice.setEnabled(true);
@@ -217,6 +229,10 @@ public class SPlayActivity extends AppCompatActivity {
         }
     }
 
+    //刷新某架飞机的位置
+    //param
+    // iplayer:玩家id
+    // iAir:飞机id
     public void setAirImage(int iplayer, int iAir){
         double x;
         double y;

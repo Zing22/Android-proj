@@ -9,9 +9,11 @@ import android.widget.Button;
 
 import java.io.Serializable;
 
+//单机游戏房间中的界面
+
 public class SRoomActivity extends AppCompatActivity {
-    final DRSGame.PlayerType[] playerType = new DRSGame.PlayerType[4];
-    int[] btn_names = {R.id.button1_sroom,R.id.button2_sroom,R.id.button3_sroom,R.id.button4_sroom};
+    final DRSGame.PlayerType[] playerType = new DRSGame.PlayerType[4];//四个位置的玩家类型
+    int[] btn_names = {R.id.button1_sroom,R.id.button2_sroom,R.id.button3_sroom,R.id.button4_sroom};//四个位置对应的按钮
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,9 +24,11 @@ public class SRoomActivity extends AppCompatActivity {
         for(int i=1;i<4;++i)
             playerType[i] = DRSGame.PlayerType.EMPTY;
 
+        //四个位置的按钮事件设置
         for(int i=0;i<4;++i){
             Button btn = (Button)this.findViewById(btn_names[i]);
             final int ix = i;
+            //点击事件
             btn.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View view){
@@ -42,6 +46,7 @@ public class SRoomActivity extends AppCompatActivity {
                     updateBtnText();
                 }
             });
+            //长按事件
             btn.setOnLongClickListener(new View.OnLongClickListener(){
                 @Override
                 public boolean onLongClick(View view){
@@ -60,6 +65,7 @@ public class SRoomActivity extends AppCompatActivity {
             });
         }
 
+        //开始游戏按钮
         Button btn_beggame = (Button)this.findViewById(R.id.button_beggame_sroom);
         btn_beggame.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,6 +80,7 @@ public class SRoomActivity extends AppCompatActivity {
         updateBtnText();
     }
 
+    //更新按钮上文本
     void updateBtnText(){
         for(int i=0;i<4;++i) {
             Button btn = (Button) this.findViewById(btn_names[i]);

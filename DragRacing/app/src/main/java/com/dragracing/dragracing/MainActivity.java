@@ -18,6 +18,8 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+//主界面
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -25,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //单机游戏按钮事件
         Button btn0 = (Button)this.findViewById(R.id.button_sgame);
         btn0.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -35,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //联机游戏按钮事件
         Button btn1 = (Button)this.findViewById(R.id.button_game);
         btn1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -45,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //设置按钮事件
         Button btn2 = (Button)this.findViewById(R.id.button_settings);
         btn2.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //关于按钮事件
         Button btn3 = (Button)this.findViewById(R.id.button_about);
         btn3.setOnClickListener(new View.OnClickListener() {
             @Override

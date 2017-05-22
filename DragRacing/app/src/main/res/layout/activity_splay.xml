@@ -27,13 +27,13 @@
                 android:id="@+id/textView5" />
 
             <ImageView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:srcCompat="@drawable/paperplane"
                 android:scaleX="@string/image_air_scaleX"
                 android:scaleY="@string/image_air_scaleY"
                 android:id="@+id/air_1_1_splay"
-                android:visibility="invisible"/>
+                android:visibility="visible"/>
 
             <ImageView
                 android:layout_width="match_parent"

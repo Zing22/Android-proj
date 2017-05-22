@@ -11,12 +11,16 @@ import android.widget.LinearLayout;
 
 import java.util.Random;
 
+//联机游戏房间列表界面
+
 public class RoomsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rooms);
+
+        //暂时随机生成房间
 
         final LinearLayout ll = (LinearLayout)this.findViewById(R.id.linear_rooms);
 

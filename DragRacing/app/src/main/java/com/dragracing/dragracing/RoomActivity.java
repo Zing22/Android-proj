@@ -8,6 +8,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+//联机游戏进入房间后的界面
+
 public class RoomActivity extends AppCompatActivity {
 
     @Override
@@ -15,8 +17,10 @@ public class RoomActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_room);
 
+        //设置房间名字
         setTitle("房间"+String.valueOf(Data.getRoom_num()));
 
+        //开始游戏按钮
         Button btn_beggame = (Button)this.findViewById(R.id.button_beggame);
         btn_beggame.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -27,6 +31,7 @@ public class RoomActivity extends AppCompatActivity {
             }
         });
 
+        //发送消息按钮
         Button btn_send = (Button)this.findViewById(R.id.button_send_room);
         final TextView tv_chat = (TextView)this.findViewById(R.id.textview_chat_room);
         final EditText et_chat = (EditText)this.findViewById(R.id.edittext_chat_room);

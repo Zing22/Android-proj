@@ -11,10 +11,13 @@ import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 
+//全局数据结构体
+
 public class Data {
-    private static int room_num = 0;
-    private static Socket mSocket;
-    private static String username;
+    private static int room_num = 0;//进入的房间号
+    private static Socket mSocket;//socket
+
+    private static String username;//用户名
 
     public static String getUsername() {
         return username;
@@ -29,6 +32,7 @@ public class Data {
         Data.room_num = room_num;
     }
 
+    //创建socket
     public static boolean createSocket(){
         try{
             mSocket = IO.socket("http://dragracing.tech");
@@ -63,6 +67,7 @@ public class Data {
         return true;
     }
 
+    //获取random name
     public static void emitRandomName(){
         Log.i("Data", "JH:emit random name");
         mSocket.emit("random name", "玩家");
