@@ -13,7 +13,7 @@ RoomsActivity:房间列表界面<br/>
 RoomActivity:房间里的界面<br/>
 PlayActivity:游戏界面<br/>
 
-# 非界面类文件
+## 非界面类文件
 Data:全局数据类<br/>
 DRSGame:单机游戏类<br/>
 DRGame:联机游戏类<br/>
