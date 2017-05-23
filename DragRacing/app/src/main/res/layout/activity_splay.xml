@@ -20,12 +20,6 @@
             android:id="@+id/layout_airs_splay"
             android:background="@drawable/game_board">
 
-            <TextView
-                android:text="TextView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/textView5" />
-
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -36,7 +30,7 @@
                 android:visibility="visible"/>
 
             <ImageView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:srcCompat="@drawable/paperplane"
                 android:scaleX="@string/image_air_scaleX"
@@ -45,7 +39,7 @@
                 android:visibility="invisible"/>
 
             <ImageView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:srcCompat="@drawable/paperplane"
                 android:scaleX="@string/image_air_scaleX"
@@ -54,7 +48,7 @@
                 android:visibility="invisible"/>
 
             <ImageView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:srcCompat="@drawable/paperplane"
                 android:scaleX="@string/image_air_scaleX"
@@ -63,7 +57,7 @@
                 android:visibility="invisible"/>
 
             <ImageView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:srcCompat="@drawable/paperplane"
                 android:scaleX="@string/image_air_scaleX"
@@ -72,7 +66,7 @@
                 android:visibility="invisible"/>
 
             <ImageView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:srcCompat="@drawable/paperplane"
                 android:scaleX="@string/image_air_scaleX"
@@ -81,7 +75,7 @@
                 android:visibility="invisible"/>
 
             <ImageView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:srcCompat="@drawable/paperplane"
                 android:scaleX="@string/image_air_scaleX"
@@ -90,7 +84,7 @@
                 android:visibility="invisible"/>
 
             <ImageView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:srcCompat="@drawable/paperplane"
                 android:scaleX="@string/image_air_scaleX"
@@ -99,7 +93,7 @@
                 android:visibility="invisible"/>
 
             <ImageView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:srcCompat="@drawable/paperplane"
                 android:scaleX="@string/image_air_scaleX"
@@ -108,7 +102,7 @@
                 android:visibility="invisible"/>
 
             <ImageView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:srcCompat="@drawable/paperplane"
                 android:scaleX="@string/image_air_scaleX"
@@ -117,7 +111,7 @@
                 android:visibility="invisible"/>
 
             <ImageView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:srcCompat="@drawable/paperplane"
                 android:scaleX="@string/image_air_scaleX"
@@ -126,7 +120,7 @@
                 android:visibility="invisible"/>
 
             <ImageView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:srcCompat="@drawable/paperplane"
                 android:scaleX="@string/image_air_scaleX"
@@ -135,7 +129,7 @@
                 android:visibility="invisible"/>
 
             <ImageView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:srcCompat="@drawable/paperplane"
                 android:scaleX="@string/image_air_scaleX"
@@ -144,7 +138,7 @@
                 android:visibility="invisible"/>
 
             <ImageView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:srcCompat="@drawable/paperplane"
                 android:scaleX="@string/image_air_scaleX"
@@ -153,7 +147,7 @@
                 android:visibility="invisible"/>
 
             <ImageView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:srcCompat="@drawable/paperplane"
                 android:scaleX="@string/image_air_scaleX"
@@ -162,7 +156,7 @@
                 android:visibility="invisible"/>
 
             <ImageView
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:srcCompat="@drawable/paperplane"
                 android:scaleX="@string/image_air_scaleX"

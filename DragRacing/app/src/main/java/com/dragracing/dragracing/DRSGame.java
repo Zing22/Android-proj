@@ -45,12 +45,14 @@ public class DRSGame {
     public int cur_dice;//当前的骰子数(记录玩家选择飞机时的点数)
 
     //事件集合类(用于记录单次飞行操作的所有事件)
-    public class StepEvent{
+    static public class StepEvent{
         public int num_event;//事件数
         public int[] poses;//发生的相对坐标
         public Boolean[] hits;//是否是攻击事件
         public int[] players;//被攻击的玩家
         public int[] airs;//被攻击的飞机
+
+        public StepEvent(){}
 
         //初始化数组
         public void init(int num){
@@ -126,6 +128,12 @@ public class DRSGame {
         cur_air = -1;
         cur_dice = -1;
         gameState = GameState.PLAYING;
+        if(getCurPlayerType() == PlayerType.AI)
+            turnState = TurnState.OTHER;
+        else if(getCurPlayerType() == PlayerType.PEOPLE)
+            turnState = TurnState.WAIT_DICE;
+        else if(getCurPlayerType() == PlayerType.INTERPEOPLE)
+            turnState = TurnState.WAIT_INTER_DICE;
     }
 
     //游戏轮到下一个玩家(外部调用,DRGame本身不决定是否要轮到下一个玩家)
