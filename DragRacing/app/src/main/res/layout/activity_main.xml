@@ -9,7 +9,7 @@
     <ImageView
         android:layout_width="248dp"
         android:layout_height="0dp"
-        android:layout_weight="0.6"
+        android:layout_weight="0.5"
         app:srcCompat="@drawable/header" />
 
     <LinearLayout
@@ -44,6 +44,13 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="0.12"
+            android:text="复盘"
+            android:id="@+id/button_replay" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.12"
             android:text="设置"
             android:id="@+id/button_settings" />
 
@@ -57,7 +64,7 @@
         <Space
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.19" />
+            android:layout_weight="0.12" />
 
     </LinearLayout>
 

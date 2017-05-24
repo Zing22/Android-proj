@@ -123,10 +123,21 @@ public class SPlayActivity extends AppCompatActivity {
         //获取玩家信息
         Intent intent = this.getIntent();
         DRSGame.PlayerType[] playerType = (DRSGame.PlayerType[])intent.getSerializableExtra("playerType");
+        String[] names = new String[playerType.length];
+        for(int i=0,cntAI=1;i<playerType.length;++i){
+            if(playerType[i] == DRSGame.PlayerType.PEOPLE){
+                names[i] = "You";
+            }
+            else if(playerType[i] == DRSGame.PlayerType.AI){
+                names[i] = "AI" + cntAI;
+                ++cntAI;
+            }
+        }
 
         //开始游戏
         drsGame = new DRSGame();
         drsGame.doReady(playerType);
+        drsGame.setPlayerNames(names);
         drsGame.doPlay();
     }
 
@@ -142,6 +153,7 @@ public class SPlayActivity extends AppCompatActivity {
                 }
             }
             setButtonEnable();
+            updateTitle();
 
             if(drsGame.getCurPlayerType() == DRSGame.PlayerType.AI){
                 playTask = new PlayTask();
@@ -220,6 +232,12 @@ public class SPlayActivity extends AppCompatActivity {
         //image_airs[0][0].layout((int)x, (int)y, 0, 0);
     }
 
+    //更新标题
+    public void updateTitle(){
+        String name = drsGame.playerNames[drsGame.cur_player];
+        setTitle(name + "的回合");
+    }
+
     //执行一次AI的飞行,返回事件集
     public DRSGame.StepEvent st_play(){
         //assert now turn to ai
@@ -278,6 +296,7 @@ public class SPlayActivity extends AppCompatActivity {
         protected void onProgressUpdate(DRSGame.StepEvent... values){
             DRSGame.StepEvent events = values[0];
             if(aniType == ANITYPE_DICE) {
+                sPlayActivity.updateTitle();
                 sPlayActivity.btn_dice.setText("Dice" + String.valueOf(sPlayActivity.cur_dice));
             }
             else if(aniType == ANITYPE_AIR){
@@ -293,8 +312,10 @@ public class SPlayActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Boolean result){
             sPlayActivity.btn_dice.setText("Dice");
-            if(result)
+            if(result) {
                 sPlayActivity.setButtonEnable();
+                sPlayActivity.updateTitle();
+            }
             else
                 sPlayActivity.setGameEnd();
         }
@@ -340,6 +361,7 @@ public class SPlayActivity extends AppCompatActivity {
         protected void onPostExecute(ArrayList<Integer> result){
             sPlayActivity.btn_dice.setText("Dice"+String.valueOf(sPlayActivity.cur_dice));
             sPlayActivity.setButtonEnable();
+            sPlayActivity.updateTitle();
             if(result.size() == 0){
                 if(sPlayActivity.drsGame.getCurPlayerType() == DRSGame.PlayerType.AI) {
                     sPlayActivity.playTask = new PlayTask();
@@ -394,6 +416,7 @@ public class SPlayActivity extends AppCompatActivity {
             sPlayActivity.btn_dice.setText("Dice");
             if(result) {
                 sPlayActivity.setButtonEnable();
+                sPlayActivity.updateTitle();
                 if(sPlayActivity.drsGame.getCurPlayerType() == DRSGame.PlayerType.AI) {
                     sPlayActivity.playTask = new PlayTask();
                     sPlayActivity.playTask.execute(sPlayActivity);

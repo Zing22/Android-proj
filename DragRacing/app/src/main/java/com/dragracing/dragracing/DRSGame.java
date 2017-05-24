@@ -37,6 +37,7 @@ public class DRSGame {
     public PlayerType[] playerType;//玩家类型
     public int[][] airPos;//飞机坐标(或状态)
     public Random randomDice;//随机产生器
+    public String[] playerNames;//玩家名字
 
     //游戏回合数据
     public TurnState turnState;//回合状态
@@ -44,6 +45,9 @@ public class DRSGame {
     public int cur_player;//当前玩家
     public int cur_air;//当前选择的飞机(记录玩家选择的飞机)
     public int cur_dice;//当前的骰子数(记录玩家选择飞机时的点数)
+
+    //游戏记录
+    public GameRecord gameRecord;
 
     //事件集合类(用于记录单次飞行操作的所有事件)
     static public class StepEvent{
@@ -64,6 +68,28 @@ public class DRSGame {
             airs = new int[num_event];
         }
     }
+    static public class GameRecord{
+        public String[] names;
+
+        public ArrayList<Integer> iplayers;
+        public ArrayList<Integer> dices;
+        public ArrayList<Integer> iAirs;
+
+        public GameRecord(){
+            iplayers = new ArrayList<>();
+            dices = new ArrayList<>();
+            iAirs = new ArrayList<>();
+        }
+        public void setPlayerNames(String[] player_names){
+            names = player_names;
+        }
+        public void addRecord(int iplayer, int dice, int iAir){
+            iplayers.add(iplayer);
+            dices.add(dice);
+            iAirs.add(iAir);
+        }
+    }
+
     //事件合并函数
     public StepEvent merge(StepEvent e1, StepEvent e2){
         StepEvent e3 = new StepEvent();
@@ -120,6 +146,8 @@ public class DRSGame {
         randomDice = new Random(233);
 
         gameState = GameState.READY;
+
+        gameRecord = new GameRecord();
     }
 
     //让游戏进入开始状态
@@ -167,6 +195,8 @@ public class DRSGame {
 
         cur_air = iAir;
         cur_dice = dice;
+
+        gameRecord.addRecord(cur_player, dice, cur_air);
 
         //assert not air end
         if(airPos[cur_player][cur_air] == AIROFF){//起机
@@ -238,6 +268,18 @@ public class DRSGame {
                 airPos[res.players[i]][res.airs[i]] = AIROFF;
 
         return res;
+    }
+
+    //设置玩家名字
+    public void setPlayerNames(String[] names){
+        playerNames = names;
+
+        String[] names2 = new String[4];
+        for(int i=0;i<num_players;++i){
+            names2[playerPos[i]] = playerNames[i];
+        }
+
+        gameRecord.setPlayerNames(names2);
     }
 
     //获取当前玩家的类型

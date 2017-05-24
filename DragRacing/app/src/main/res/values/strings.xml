@@ -5,6 +5,7 @@
     <string name="rooms_ac_title">房间</string>
     <string name="room_ac_title">玩家xxx的房间</string>
     <string name="play_ac_title">不知道什么标题</string>
+    <string name="replay_ac_title">复盘</string>
 
     <string name="image_air_scaleX">0.3</string>
     <string name="image_air_scaleY">0.3</string>

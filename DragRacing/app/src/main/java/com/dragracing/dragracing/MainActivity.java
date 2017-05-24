@@ -49,6 +49,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //复盘按钮事件
+        Button btn_replay = (Button)this.findViewById(R.id.button_replay);
+        btn_replay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent();
+                intent.setClass(MainActivity.this, ReplayActivity.class);
+                startActivity(intent);
+            }
+        });
+
         //设置按钮事件
         Button btn2 = (Button)this.findViewById(R.id.button_settings);
         btn2.setOnClickListener(new View.OnClickListener() {

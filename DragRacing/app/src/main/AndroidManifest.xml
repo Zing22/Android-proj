@@ -32,7 +32,10 @@
             android:name=".PlayActivity"
             android:label="@string/play_ac_title" />
         <activity android:name=".SRoomActivity" />
-        <activity android:name=".SPlayActivity"></activity>
+        <activity android:name=".SPlayActivity" />
+        <activity
+            android:name=".ReplayActivity"
+            android:label="@string/replay_ac_title"></activity>
     </application>
 
 </manifest>
