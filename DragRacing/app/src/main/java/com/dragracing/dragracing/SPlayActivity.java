@@ -1,7 +1,12 @@
 package com.dragracing.dragracing;
 
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.os.AsyncTask;
+import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -90,6 +95,31 @@ public class SPlayActivity extends AppCompatActivity {
             });
         }
 
+        //Bundle bundle = this.getIntent().getExtras();
+        //ApplicationInfo appInfo = getApplicationInfo();
+        //int bmpid = getResources().getIdentifier("paperplane", "drawable", appInfo.packageName);
+        //Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.drawable.paperplane);
+        //Matrix matrix = new Matrix();
+        //int bmpWidth = bmp.getWidth();
+        //int bmpHeight = bmp.getHeight();
+
+        //float scaleX = Float.valueOf(getResources().getString(R.string.image_air_scaleX));
+        //float scaleY = Float.valueOf(getResources().getString(R.string.image_air_scaleY));
+        //float scaleX = R.string.image_air_scaleX;
+        //float scaleY = R.string.image_air_scaleY;
+        //Log.i("SPlayActivity", "JH:scale "+scaleX+" "+scaleY);
+        //Log.i("SPlayActivity", "JH:bmp "+bmpWidth+" "+bmpHeight);
+        //matrix.postScale(scaleX, scaleY);
+        //Bitmap sbmp = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);
+
+        //layout_airs.removeView(image_airs[0][0]);
+        //image_airs[0][0] = new ImageView(this);
+        //image_airs[0][0].setId(air_id[0][0]);
+        //image_airs[0][0].setImageBitmap(sbmp);
+        //layout_airs.addView(image_airs[0][0]);
+
+        //setContentView(R.layout.activity_splay);
+
         //获取玩家信息
         Intent intent = this.getIntent();
         DRSGame.PlayerType[] playerType = (DRSGame.PlayerType[])intent.getSerializableExtra("playerType");
@@ -153,6 +183,7 @@ public class SPlayActivity extends AppCompatActivity {
     // iplayer:玩家id
     // iAir:飞机id
     public void setAirImage(int iplayer, int iAir){
+        Log.d("SPlayActivity", String.format("JH:setAirImage %d %d", iplayer, iAir));
         double x;
         double y;
         if(drsGame.airPos[iplayer][iAir] == drsGame.AIROFF){
@@ -177,11 +208,15 @@ public class SPlayActivity extends AppCompatActivity {
         }
         x = x / 100 * layout_airs.getWidth();
         y = y / 100 * layout_airs.getHeight();
+        float scaleX = Float.valueOf(getResources().getString(R.string.image_air_scaleX));
+        float scaleY = Float.valueOf(getResources().getString(R.string.image_air_scaleY));
+        x -= image_airs[drsGame.playerPos[iplayer]][iAir].getWidth() * (1-scaleX) / 2;
+        y -= image_airs[drsGame.playerPos[iplayer]][iAir].getHeight() * (1-scaleY) / 2;
         image_airs[drsGame.playerPos[iplayer]][iAir].setX((float)x);
         image_airs[drsGame.playerPos[iplayer]][iAir].setY((float)y);
 
-        Log.i("SPlayActivity", String.format("JH:%d %d %f %f", layout_airs.getWidth(), layout_airs.getHeight(), x, y));
-        Log.i("SPlayActivity", String.format("JH:%d %d %f %f", layout_airs.getWidth(), layout_airs.getHeight(), x, y));
+        //Log.i("SPlayActivity", String.format("JH:%d %d %f %f", layout_airs.getWidth(), layout_airs.getHeight(), x, y));
+        //Log.i("SPlayActivity", String.format("JH:%d %d %f %f", layout_airs.getWidth(), layout_airs.getHeight(), x, y));
         //image_airs[0][0].layout((int)x, (int)y, 0, 0);
     }
 
@@ -197,7 +232,9 @@ public class SPlayActivity extends AppCompatActivity {
             events.init(0);
         }
         else {
-            events = drsGame.doStep(airs.get(0), dice);
+            cur_dice = dice;
+            cur_air = airs.get(0);
+            events = drsGame.doStep(cur_air, cur_dice);
         }
 
         return events;
@@ -205,7 +242,12 @@ public class SPlayActivity extends AppCompatActivity {
 
     //AI任务类,处理AI回合
     class PlayTask extends AsyncTask<SPlayActivity, DRSGame.StepEvent, Boolean>{
+        int ANITYPE_DICE=-1;
+        int ANITYPE_AIR=-2;
+
         SPlayActivity sPlayActivity;
+        int aniType;
+        int s1;//信号量
 
         @Override
         protected void onPreExecute(){
@@ -216,8 +258,13 @@ public class SPlayActivity extends AppCompatActivity {
             sPlayActivity = params[0];
 
             while(sPlayActivity.drsGame.getCurPlayerType() == DRSGame.PlayerType.AI){
+                SystemClock.sleep(1000);
                 DRSGame.StepEvent events = sPlayActivity.st_play();
-                publishProgress(events);
+                aniType = ANITYPE_DICE;
+                doEvent(events);
+                SystemClock.sleep(1000);
+                aniType = ANITYPE_AIR;
+                doEvent(events);
 
                 if(sPlayActivity.drsGame.gameState == DRSGame.GameState.END)
                     return false;
@@ -225,33 +272,44 @@ public class SPlayActivity extends AppCompatActivity {
                     drsGame.nextStep();
             }
 
-            if(sPlayActivity.drsGame.getCurPlayerType() == DRSGame.PlayerType.PEOPLE)
-                sPlayActivity.drsGame.turnState = DRSGame.TurnState.WAIT_DICE;
-            else if(sPlayActivity.drsGame.getCurPlayerType() == DRSGame.PlayerType.INTERPEOPLE)
-                sPlayActivity.drsGame.turnState = DRSGame.TurnState.WAIT_INTER_DICE;
-
             return true;
         }
         @Override
         protected void onProgressUpdate(DRSGame.StepEvent... values){
             DRSGame.StepEvent events = values[0];
-            sPlayActivity.setAirImage(sPlayActivity.drsGame.cur_player, sPlayActivity.drsGame.cur_air);
-            for(int i=0;i<events.num_event;++i)
-                if(events.hits[i])
-                    sPlayActivity.setAirImage(events.players[i], events.airs[i]);
+            if(aniType == ANITYPE_DICE) {
+                sPlayActivity.btn_dice.setText("Dice" + String.valueOf(sPlayActivity.cur_dice));
+            }
+            else if(aniType == ANITYPE_AIR){
+                if (events.num_event > 0) {
+                    sPlayActivity.setAirImage(sPlayActivity.drsGame.cur_player, sPlayActivity.drsGame.cur_air);
+                    for (int i = 0; i < events.num_event; ++i)
+                        if (events.hits[i])
+                            sPlayActivity.setAirImage(events.players[i], events.airs[i]);
+                }
+            }
+            s1 = 0;
         }
         @Override
         protected void onPostExecute(Boolean result){
+            sPlayActivity.btn_dice.setText("Dice");
             if(result)
                 sPlayActivity.setButtonEnable();
             else
                 sPlayActivity.setGameEnd();
+        }
+        public void doEvent(DRSGame.StepEvent events){
+            s1 = 1;
+            publishProgress(events);
+            while(s1 != 0)
+                SystemClock.sleep(50);
         }
     }
 
     //骰子点击任务类,处理骰子点击后的操作
     class ClickDiceTask extends AsyncTask<SPlayActivity, DRSGame.StepEvent, ArrayList<Integer>>{
         SPlayActivity sPlayActivity;
+        int s1;//信号量
 
         @Override
         protected void onPreExecute(){
@@ -259,6 +317,7 @@ public class SPlayActivity extends AppCompatActivity {
         }
         @Override
         protected ArrayList<Integer> doInBackground(SPlayActivity... params){
+            SystemClock.sleep(500);
             sPlayActivity = params[0];
 
             sPlayActivity.cur_dice = sPlayActivity.drsGame.getDice();
@@ -279,6 +338,7 @@ public class SPlayActivity extends AppCompatActivity {
         }
         @Override
         protected void onPostExecute(ArrayList<Integer> result){
+            sPlayActivity.btn_dice.setText("Dice"+String.valueOf(sPlayActivity.cur_dice));
             sPlayActivity.setButtonEnable();
             if(result.size() == 0){
                 if(sPlayActivity.drsGame.getCurPlayerType() == DRSGame.PlayerType.AI) {
@@ -292,6 +352,7 @@ public class SPlayActivity extends AppCompatActivity {
     //飞机点击任务类,用于处理点击飞机按钮后的操作
     class ClickAirTask extends AsyncTask<SPlayActivity, DRSGame.StepEvent, Boolean>{
         SPlayActivity sPlayActivity;
+        int s1;//信号量
 
         @Override
         protected void onPreExecute(){
@@ -299,20 +360,23 @@ public class SPlayActivity extends AppCompatActivity {
         }
         @Override
         protected Boolean doInBackground(SPlayActivity... params){
+            SystemClock.sleep(500);
             sPlayActivity = params[0];
 
             DRSGame.StepEvent events = sPlayActivity.drsGame.doStep(sPlayActivity.cur_air, sPlayActivity.cur_dice);
+            s1 = 1;
             publishProgress(events);
+            while(s1 != 0)
+                SystemClock.sleep(50);
+
+            Log.d("SPlayActivity","JH:click air bg");
 
             if(sPlayActivity.drsGame.gameState == DRSGame.GameState.END)
                 return false;
             if(sPlayActivity.drsGame.cur_dice != 6)
                 drsGame.nextStep();
-
-            if(sPlayActivity.drsGame.getCurPlayerType() == DRSGame.PlayerType.PEOPLE)
+            else
                 sPlayActivity.drsGame.turnState = DRSGame.TurnState.WAIT_DICE;
-            else if(sPlayActivity.drsGame.getCurPlayerType() == DRSGame.PlayerType.INTERPEOPLE)
-                sPlayActivity.drsGame.turnState = DRSGame.TurnState.WAIT_INTER_DICE;
 
             return true;
         }
@@ -323,9 +387,11 @@ public class SPlayActivity extends AppCompatActivity {
             for(int i=0;i<events.num_event;++i)
                 if(events.hits[i])
                     sPlayActivity.setAirImage(events.players[i], events.airs[i]);
+            s1 = 0;
         }
         @Override
         protected void onPostExecute(Boolean result){
+            sPlayActivity.btn_dice.setText("Dice");
             if(result) {
                 sPlayActivity.setButtonEnable();
                 if(sPlayActivity.drsGame.getCurPlayerType() == DRSGame.PlayerType.AI) {

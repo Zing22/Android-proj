@@ -1,5 +1,6 @@
 package com.dragracing.dragracing;
 
+import android.util.Log;
 import android.util.Pair;
 
 import java.util.ArrayList;
@@ -138,6 +139,7 @@ public class DRSGame {
 
     //游戏轮到下一个玩家(外部调用,DRGame本身不决定是否要轮到下一个玩家)
     public void nextStep(){
+        Log.d("DRSGame","JH:next step");
         cur_player++;
         if(cur_player == num_players) {
             cur_player = 0;
@@ -146,6 +148,13 @@ public class DRSGame {
 
         cur_air = -1;
         cur_dice = -1;
+
+        if(getCurPlayerType() == PlayerType.AI)
+            turnState = TurnState.OTHER;
+        else if(getCurPlayerType() == PlayerType.PEOPLE)
+            turnState = TurnState.WAIT_DICE;
+        else if(getCurPlayerType() == PlayerType.INTERPEOPLE)
+            turnState = TurnState.WAIT_INTER_DICE;
     }
 
     //游戏执行一次飞行操作
@@ -262,7 +271,9 @@ public class DRSGame {
 
     //获取一个随机的骰子点数
     public int getDice(){
-        return randomDice.nextInt(6)+1;
+        int ret = randomDice.nextInt(6)+1;
+        Log.d("DRSGame","JH:get dice"+ret);
+        return ret;
     }
 
     //相对坐标转绝对坐标
