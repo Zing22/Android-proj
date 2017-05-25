@@ -227,6 +227,22 @@ var game = function() {
   $('.game.chat-area').width(task_width).height(chat_height);
 
   window.chat();
+	
+	var isCatered = false;
+	var isMyTurn = false;
+	$('.cater-btn').click(function(event) {
+		isCatered = !isCatered;
+		if (isCatered) {
+			this.innerHTML = '取消托管';
+		} else {
+			this.innerHTML = '托管';
+		}
+		if (isCatered && isMyTurn) {
+			isMyTurn = false;
+			socket.emit('wanna dice');
+			$('.game.dice-box').removeClass('active');
+		}
+	});
 
   socket.emit('game loaded');
 
@@ -262,11 +278,18 @@ var game = function() {
       $('.title > span').text(data.username + ' 的回合...');
     }
     socket.emit('turn dice done');
+		isMyTurn = true;
+		if (isCatered && data.user_id === socket.id) {
+			isMyTurn = false;
+			socket.emit('wanna dice');
+			$('.game.dice-box').removeClass('active');
+		}
   });
 
   $('.game.dice-box').click(function(event) {
     if (!$(this).hasClass('active')) return false;
     // 等待结果从服务器返回
+		isMyTurn = false;
     socket.emit('wanna dice');
     $(this).removeClass('active');
   });
@@ -306,6 +329,16 @@ var game = function() {
           now_turn = data.player_num; // 存起来下面用
         }
         socket.emit('dice result done');
+				
+				if (isCatered && data.user_id === socket.id) {
+					var i = 0;
+					for (i = 0; i < 4; i++) {
+						var chess = $('.game.chessman.'+player_colors[data.player_num]+'.num-'+i);
+						if (chess.hasClass('active')) break;
+					}
+					socket.emit('move chessman', i, -1);
+					unset_chess_active(player_colors[data.player_num]);
+				}
       });
     }, 1000);
   });
