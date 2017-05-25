@@ -272,10 +272,10 @@ io.sockets.on('connection', function(socket) {
   });
 
   // 玩家选择移动棋子
-  socket.on('move chessman', function(num) {
+  socket.on('move chessman', function(num, isCheated) {
     // 知道玩家要移动第几个棋子，也知道玩家
     var room_id = get_room_of(socket);
-    var res = game.get_movement_path(room_id, num);
+    var res = game.get_movement_path(room_id, num, isCheated);
     // 返回玩家序号，棋子序号，棋子的移动路径
     io.in(room_id).emit('chess move', {
       player_num: game.now_turn(room_id),
