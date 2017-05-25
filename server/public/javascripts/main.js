@@ -268,7 +268,7 @@ var game = function() {
     if (!$(this).hasClass('active')) return false;
     // 等待结果从服务器返回
     socket.emit('wanna dice');
-    $(this).removeClass('active')
+    $(this).removeClass('active');
   });
 
   var set_chess_active = function(color, available) {
@@ -312,7 +312,11 @@ var game = function() {
 
   $('.game.chessman').click(function(event) {
     if (!$(this).hasClass('active')) return false;
-    socket.emit('move chessman', $(this).attr('num'));
+		
+    // 金手指
+    var cheat = parseInt($('.cheat-box').val());
+    if (cheat === NaN || cheat < -1 || cheat > 75) cheat = -1;
+    socket.emit('move chessman', $(this).attr('num'), cheat);
     unset_chess_active(player_colors[now_turn]);
   });
 
@@ -323,7 +327,7 @@ var game = function() {
     var move_path = data.move_path;
     var $chess = $('.game.chessman.' + color + '.num-' + data.chess_num);
 		var attacked_chess = data.enemy_pair;
-		attacked_chess.push([0,0,'NaN']);
+		attacked_chess.push([NaN,NaN,NaN]);
     var i = 1, j = 0;
     var inter = setInterval(function() {
       if (i >= move_path.length) {
@@ -334,20 +338,20 @@ var game = function() {
         $chess.removeClass(move_path[i - 1]).addClass(move_path[i]);
         
 				// 过加油站踩人
-				if (parseInt(attacked_chess[j][2].substr(4)) >= 60) {
+				if (attacked_chess[j][2] >= 60) {
 					var m1 = parseInt(move_path[i-1].substr(4));
 					var m2 = parseInt(move_path[i].substr(4));
 					if (m2 - m1 == 12 || m1 - m2 == 40) {
 						var $achess = $('.game.chessman.' + player_colors[attacked_chess[j][0]] + '.num-' + attacked_chess[j][1]);
-						$achess.removeClass(attacked_chess[j][2]).addClass('not-ready');
+						$achess.removeClass(('pos-'+attacked_chess[j][2])).addClass('not-ready');
 						j++;
 					}
 				}
 				
 				// 普通踩人
-				if (attacked_chess[j][2] == move_path[i]) {
+				if (('pos-'+attacked_chess[j][2]) == move_path[i]) {
 					var $achess = $('.game.chessman.' + player_colors[attacked_chess[j][0]] + '.num-' + attacked_chess[j][1]);
-					$achess.removeClass(attacked_chess[j][2]).addClass('not-ready');
+					$achess.removeClass(move_path[i]).addClass('not-ready');
 					j++;
 				}
 				
