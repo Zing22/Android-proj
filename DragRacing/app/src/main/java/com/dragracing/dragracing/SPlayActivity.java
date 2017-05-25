@@ -1,5 +1,6 @@
 package com.dragracing.dragracing;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.graphics.Bitmap;
@@ -7,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.os.AsyncTask;
 import android.os.SystemClock;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,10 +17,12 @@ import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.cunoraz.gifview.library.GifView;
 import com.jero.multiviewanimation_library.AnimManager;
 
 import java.util.ArrayList;
@@ -39,8 +43,12 @@ public class SPlayActivity extends AppCompatActivity {
             {R.id.air_3_1_splay,R.id.air_3_2_splay,R.id.air_3_3_splay,R.id.air_3_4_splay},
             {R.id.air_4_1_splay,R.id.air_4_2_splay,R.id.air_4_3_splay,R.id.air_4_4_splay}
     };
+    //所有骰子贴图的id
+    int[] dice_id = {0, R.drawable.dice1,R.drawable.dice2,R.drawable.dice3,R.drawable.dice4,R.drawable.dice5,R.drawable.dice6};
     ImageView[][] image_airs;//飞机贴图对象
     FrameLayout layout_airs;//游戏棋盘的布局
+    ImageButton imageButton_dice;//骰子按钮图片
+    ImageView image_dice;//骰子图片
 
     int cur_dice;//当前骰子点数
     int cur_air;//当前选择的飞机
@@ -69,6 +77,10 @@ public class SPlayActivity extends AppCompatActivity {
                 image_airs[i][j] = (ImageView)this.findViewById(air_id[i][j]);
         //棋盘布局
         layout_airs = (FrameLayout) this.findViewById(R.id.layout_airs_splay);
+        //骰子按钮贴图
+        imageButton_dice = (ImageButton)this.findViewById(R.id.imageButton_dice);
+        //骰子贴图
+        image_dice = (ImageView)this.findViewById(R.id.image_dice);
 
         //事件设置
         //骰子按钮
@@ -94,6 +106,16 @@ public class SPlayActivity extends AppCompatActivity {
                 }
             });
         }
+        //骰子图片按钮
+        imageButton_dice.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+
+                clickDiceTask = new ClickDiceTask();
+                clickDiceTask.execute(SPlayActivity.this);
+            }
+        });
+
 
         //Bundle bundle = this.getIntent().getExtras();
         //ApplicationInfo appInfo = getApplicationInfo();
@@ -119,6 +141,13 @@ public class SPlayActivity extends AppCompatActivity {
         //layout_airs.addView(image_airs[0][0]);
 
         //setContentView(R.layout.activity_splay);
+        /*
+        GifView gifView = new GifView(this);
+        gifView.setVisibility(View.VISIBLE);
+        gifView.setGifResource(R.drawable.waiting);
+        layout_airs.addView(gifView);
+        gifView.play();*/
+
 
         //获取玩家信息
         Intent intent = this.getIntent();
@@ -156,10 +185,16 @@ public class SPlayActivity extends AppCompatActivity {
             updateTitle();
 
             if(drsGame.getCurPlayerType() == DRSGame.PlayerType.AI){
+                updateDice(true, false, false);
                 playTask = new PlayTask();
                 playTask.execute(SPlayActivity.this);
             }
-            //play();
+            else if(drsGame.getCurPlayerType() == DRSGame.PlayerType.INTERPEOPLE){
+                updateDice(true, false, false);
+            }
+            else if(drsGame.getCurPlayerType() == DRSGame.PlayerType.PEOPLE) {
+                updateDice(true, false, true);
+            }
         }
     }
 
@@ -187,7 +222,21 @@ public class SPlayActivity extends AppCompatActivity {
 
     //设置游戏结束
     public void setGameEnd(){
+        //need a game record save
 
+        String winner = drsGame.playerNames[drsGame.whoWin()];
+        AlertDialog.Builder builder = new AlertDialog.Builder(SPlayActivity.this);
+        builder.setTitle("游戏结束");
+        builder.setMessage(winner+"赢了!");
+        builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+                SPlayActivity.this.finish();
+            }
+        });
+
+        builder.create().show();
     }
 
     //刷新某架飞机的位置
@@ -236,6 +285,29 @@ public class SPlayActivity extends AppCompatActivity {
     public void updateTitle(){
         String name = drsGame.playerNames[drsGame.cur_player];
         setTitle(name + "的回合");
+    }
+
+    //更新骰子按钮和图片
+    //param
+    // fa:是否显示骰子gif
+    // fb:是否显示骰子结果
+    // fc:骰子gif是否可点
+    public void updateDice(Boolean fa, Boolean fb, Boolean fc){
+        if(fa){
+            imageButton_dice.setVisibility(View.VISIBLE);
+            imageButton_dice.setEnabled(fc);
+        }
+        else{
+            imageButton_dice.setVisibility(View.INVISIBLE);
+        }
+
+        if(fb){
+            image_dice.setImageResource(dice_id[cur_dice]);
+            image_dice.setVisibility(View.VISIBLE);
+        }
+        else{
+            image_dice.setVisibility(View.INVISIBLE);
+        }
     }
 
     //执行一次AI的飞行,返回事件集
@@ -298,8 +370,10 @@ public class SPlayActivity extends AppCompatActivity {
             if(aniType == ANITYPE_DICE) {
                 sPlayActivity.updateTitle();
                 sPlayActivity.btn_dice.setText("Dice" + String.valueOf(sPlayActivity.cur_dice));
+                sPlayActivity.updateDice(false, true, false);
             }
             else if(aniType == ANITYPE_AIR){
+                sPlayActivity.updateDice(false, false, false);
                 if (events.num_event > 0) {
                     sPlayActivity.setAirImage(sPlayActivity.drsGame.cur_player, sPlayActivity.drsGame.cur_air);
                     for (int i = 0; i < events.num_event; ++i)
@@ -315,6 +389,10 @@ public class SPlayActivity extends AppCompatActivity {
             if(result) {
                 sPlayActivity.setButtonEnable();
                 sPlayActivity.updateTitle();
+                if(sPlayActivity.drsGame.getCurPlayerType() == DRSGame.PlayerType.PEOPLE)
+                    sPlayActivity.updateDice(true, false, true);
+                else
+                    sPlayActivity.updateDice(true, false, false);
             }
             else
                 sPlayActivity.setGameEnd();
@@ -328,7 +406,7 @@ public class SPlayActivity extends AppCompatActivity {
     }
 
     //骰子点击任务类,处理骰子点击后的操作
-    class ClickDiceTask extends AsyncTask<SPlayActivity, DRSGame.StepEvent, ArrayList<Integer>>{
+    class ClickDiceTask extends AsyncTask<SPlayActivity, Void, ArrayList<Integer>>{
         SPlayActivity sPlayActivity;
         int s1;//信号量
 
@@ -343,6 +421,9 @@ public class SPlayActivity extends AppCompatActivity {
 
             sPlayActivity.cur_dice = sPlayActivity.drsGame.getDice();
 
+            publishProgress();
+            SystemClock.sleep(1500);
+
             ArrayList<Integer> airs = drsGame.getCandidateAir(sPlayActivity.cur_dice);
             if(airs.size() == 0){
                 sPlayActivity.drsGame.nextStep();
@@ -354,8 +435,8 @@ public class SPlayActivity extends AppCompatActivity {
             return airs;
         }
         @Override
-        protected void onProgressUpdate(DRSGame.StepEvent... values){
-
+        protected void onProgressUpdate(Void... values){
+            sPlayActivity.updateDice(false, true, false);
         }
         @Override
         protected void onPostExecute(ArrayList<Integer> result){
@@ -364,9 +445,19 @@ public class SPlayActivity extends AppCompatActivity {
             sPlayActivity.updateTitle();
             if(result.size() == 0){
                 if(sPlayActivity.drsGame.getCurPlayerType() == DRSGame.PlayerType.AI) {
+                    sPlayActivity.updateDice(true, false, false);
                     sPlayActivity.playTask = new PlayTask();
                     sPlayActivity.playTask.execute(sPlayActivity);
                 }
+                else if(sPlayActivity.drsGame.getCurPlayerType() == DRSGame.PlayerType.PEOPLE){
+                    sPlayActivity.updateDice(true, false, true);
+                }
+                else if(sPlayActivity.drsGame.getCurPlayerType() == DRSGame.PlayerType.INTERPEOPLE) {
+                    sPlayActivity.updateDice(true, false, false);
+                }
+            }
+            else{
+                sPlayActivity.updateDice(false, true, false);
             }
         }
     }
@@ -404,6 +495,7 @@ public class SPlayActivity extends AppCompatActivity {
         }
         @Override
         protected void onProgressUpdate(DRSGame.StepEvent... values){
+            sPlayActivity.updateDice(false, false, false);
             DRSGame.StepEvent events = values[0];
             sPlayActivity.setAirImage(sPlayActivity.drsGame.cur_player, sPlayActivity.drsGame.cur_air);
             for(int i=0;i<events.num_event;++i)
@@ -418,8 +510,15 @@ public class SPlayActivity extends AppCompatActivity {
                 sPlayActivity.setButtonEnable();
                 sPlayActivity.updateTitle();
                 if(sPlayActivity.drsGame.getCurPlayerType() == DRSGame.PlayerType.AI) {
+                    sPlayActivity.updateDice(true, false, false);
                     sPlayActivity.playTask = new PlayTask();
                     sPlayActivity.playTask.execute(sPlayActivity);
+                }
+                else if(sPlayActivity.drsGame.getCurPlayerType() == DRSGame.PlayerType.PEOPLE){
+                    sPlayActivity.updateDice(true, false, true);
+                }
+                else if(sPlayActivity.drsGame.getCurPlayerType() == DRSGame.PlayerType.INTERPEOPLE) {
+                    sPlayActivity.updateDice(true, false, false);
                 }
             }
             else

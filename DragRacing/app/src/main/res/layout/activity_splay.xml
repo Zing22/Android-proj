@@ -20,6 +20,23 @@
             android:id="@+id/layout_airs_splay"
             android:background="@drawable/game_board">
 
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/dice1"
+                android:background="@android:color/transparent"
+                android:layout_gravity="center"
+                android:visibility="invisible"
+                android:id="@+id/imageButton_dice" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/dice1"
+                android:layout_gravity="center"
+                android:visibility="invisible"
+                android:id="@+id/image_dice" />
+
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -163,6 +180,11 @@
                 android:scaleY="@string/image_air_scaleY"
                 android:id="@+id/air_4_4_splay"
                 android:visibility="invisible"/>
+
+            <!--com.cunoraz.gifview.library.GifView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:gif="@drawable/waiting"/-->
 
         </FrameLayout>
 

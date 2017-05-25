@@ -45,7 +45,7 @@
             android:layout_height="0dp"
             android:layout_weight="0.12"
             android:text="复盘"
-            android:id="@+id/button_replay" />
+            android:id="@+id/button_replays" />
 
         <Button
             android:layout_width="match_parent"

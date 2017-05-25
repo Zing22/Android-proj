@@ -50,12 +50,12 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //复盘按钮事件
-        Button btn_replay = (Button)this.findViewById(R.id.button_replay);
-        btn_replay.setOnClickListener(new View.OnClickListener() {
+        Button btn_replays = (Button)this.findViewById(R.id.button_replays);
+        btn_replays.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent();
-                intent.setClass(MainActivity.this, ReplayActivity.class);
+                intent.setClass(MainActivity.this, ReplaysActivity.class);
                 startActivity(intent);
             }
         });
