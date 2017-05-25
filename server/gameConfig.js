@@ -26,4 +26,5 @@ module.exports = {
     ready_allow: ready_allow,
     round_length: round_length,
     allow_another_turn: allow_another_turn,
+    air_hit_point: air_hit_point,
 }

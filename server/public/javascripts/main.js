@@ -382,7 +382,7 @@ var game = function() {
 				}
 				
 				// 普通踩人
-				if (('pos-'+attacked_chess[j][2]) == move_path[i]) {
+				while (('pos-'+attacked_chess[j][2]) == move_path[i]) {
 					var $achess = $('.game.chessman.' + player_colors[attacked_chess[j][0]] + '.num-' + attacked_chess[j][1]);
 					$achess.removeClass(move_path[i]).addClass('not-ready');
 					j++;

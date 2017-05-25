@@ -336,9 +336,9 @@ var get_ai_chess = function(room_id, dice) {
 
 
 // 获取一个棋子的移动路径
-var get_movement_path = function(room_id, chess) {
+var get_movement_path = function(room_id, chess, isCheated) {
   var room = rooms_pool[room_id];
-  var dice = room.dice;
+  var dice = room.dice; 
   var player = room.players[room.nowTurn];
   var game_path = gConfig.player_path[room.nowTurn];
   var hit_point = gConfig.air_hit_point;
@@ -350,6 +350,7 @@ var get_movement_path = function(room_id, chess) {
   // 最终要返回的路径
   var res_path = [];
   // 把原始路径给它塞进去先
+  console.log('isCheated=' + isCheated);
   if (status === CHESS_STATUS.NOT_READY) {
     res_path.push('not-ready');
   } else if (status === CHESS_STATUS.READY) {
@@ -358,37 +359,44 @@ var get_movement_path = function(room_id, chess) {
     res_path.push('pos-' + pos);
   }
 
-  if (status === CHESS_STATUS.NOT_READY) {
-    status = CHESS_STATUS.READY;
-    res_path.push('ready');
-  } else if (status === CHESS_STATUS.READY) {
-    // 已经是准备好的飞机
+  if(isCheated >= 0 && isCheated <=75) {
     status = CHESS_STATUS.FLYING;
-    dice--;
-    pos = game_path[0];
+    pos = isCheated;
     res_path.push('pos-' + pos);
   }
-
-  while (status === CHESS_STATUS.FLYING && dice) {
-    // 如果踩在外环终点上，就进入直线跑道
-    if (pos === game_path[1]) {
-      pos = game_path[2];
-      res_path.push('pos-' + pos);
-    } else if (pos >= game_path[2]) {
-      // 如果在直线跑道上了，前移一个跑道
-      pos += 4;
-      res_path.push('pos-' + pos);
-      if (pos >= game_path[3]) {
-        // 在终点上了
-        status = CHESS_STATUS.ARRIVED;
-        res_path.push('arrived');
-      }
-    } else {
-      // 在普通外环上
-      pos = parseInt((pos + 1) % gConfig.round_length);
+  else{ 
+    if (status === CHESS_STATUS.NOT_READY) {
+      status = CHESS_STATUS.READY;
+      res_path.push('ready');
+    } else if (status === CHESS_STATUS.READY) {
+      // 已经是准备好的飞机
+      status = CHESS_STATUS.FLYING;
+      dice--;
+      pos = game_path[0];
       res_path.push('pos-' + pos);
     }
-    dice--;
+
+    while (status === CHESS_STATUS.FLYING && dice) {
+      // 如果踩在外环终点上，就进入直线跑道
+      if (pos === game_path[1]) {
+        pos = game_path[2];
+        res_path.push('pos-' + pos);
+      } else if (pos >= game_path[2]) {
+        // 如果在直线跑道上了，前移一个跑道
+        pos += 4;
+        res_path.push('pos-' + pos);
+        if (pos >= game_path[3]) {
+          // 在终点上了
+          status = CHESS_STATUS.ARRIVED;
+          res_path.push('arrived');
+        }
+      } else {
+        // 在普通外环上
+        pos = parseInt((pos + 1) % gConfig.round_length);
+        res_path.push('pos-' + pos);
+      }
+      dice--;
+    }
   }
   check_pos.push(pos);
   // 判断能不能同色跳
@@ -425,8 +433,6 @@ var get_movement_path = function(room_id, chess) {
   var enemy = [];
   var enemy_pair = [];
   for(var k = 0; k < check_pos.length; ++k) {
-    // 清空先
-    enemy = [];
     // 玩家
     for (var i = 0; i < room.players.length; i++) {
       if (!room.players[i].gaming || i === room.nowTurn) {
@@ -436,8 +442,8 @@ var get_movement_path = function(room_id, chess) {
       // 四颗棋子
       for (var j = 0; j < 4; j++) {
         // 在同个格子上的棋子
-        // console.log(room.players[i].chessman[j]);
-        if (room.players[i].chessman[j].status === CHESS_STATUS.FLYING
+        // room.players[i].chessman[j].status === CHESS_STATUS.FLYING &&
+        if (room.players[i].chessman[j].status === CHESS_STATUS.FLYING 
           && room.players[i].chessman[j].position === check_pos[k]) {
           enemy.push(room.players[i].chessman[j]);
           enemy_pair.push([i, j, check_pos[k]]);
@@ -445,14 +451,16 @@ var get_movement_path = function(room_id, chess) {
         }
       }
     }
-    // 如果脚下有敌人，那就向前移动一格
-    if (enemy.length !== 0) {
+  }
+  if (enemy.length !== 0) {
+      console.log('人了！', enemy);
       for(var i = 0; i < enemy.length; ++i) {
         enemy[i].status = CHESS_STATUS.NOT_READY;
         enemy[i].position = -1;
       }
       console.log('踩人了！', enemy);
-      // 在外环终点上
+    // 如果脚下有敌人，那就向前移动一格
+    // 在外环终点上
     //   if (pos === game_path[1]) {
     //     pos = game_path[2];
     //     res_path.push('pos-' + pos);
@@ -463,8 +471,6 @@ var get_movement_path = function(room_id, chess) {
     //   }
     // } else {
     //  break;
-    }
-    break;
   }
 
 

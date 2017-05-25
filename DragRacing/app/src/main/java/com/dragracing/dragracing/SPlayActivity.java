@@ -1,5 +1,6 @@
 package com.dragracing.dragracing;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -11,11 +12,13 @@ import android.os.SystemClock;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -25,8 +28,14 @@ import android.widget.TextView;
 import com.cunoraz.gifview.library.GifView;
 import com.jero.multiviewanimation_library.AnimManager;
 
+import java.io.BufferedWriter;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
 
@@ -110,9 +119,29 @@ public class SPlayActivity extends AppCompatActivity {
         imageButton_dice.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-
+                cur_dice = -1;
                 clickDiceTask = new ClickDiceTask();
                 clickDiceTask.execute(SPlayActivity.this);
+            }
+        });
+        imageButton_dice.setOnLongClickListener(new View.OnLongClickListener(){
+            @Override
+            public boolean onLongClick(View view){
+                AlertDialog.Builder builder = new AlertDialog.Builder(SPlayActivity.this);
+                final EditText editText = new EditText(SPlayActivity.this);
+                editText.setInputType(InputType.TYPE_CLASS_NUMBER);
+                builder.setView(editText);
+                builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        cur_dice = Integer.parseInt(editText.getText().toString());
+                        clickDiceTask = new ClickDiceTask();
+                        clickDiceTask.execute(SPlayActivity.this);
+                    }
+                });
+
+                builder.create().show();
+                return true;
             }
         });
 
@@ -152,13 +181,13 @@ public class SPlayActivity extends AppCompatActivity {
         //获取玩家信息
         Intent intent = this.getIntent();
         DRSGame.PlayerType[] playerType = (DRSGame.PlayerType[])intent.getSerializableExtra("playerType");
-        String[] names = new String[playerType.length];
+        String[] playerNames = new String[playerType.length];
         for(int i=0,cntAI=1;i<playerType.length;++i){
             if(playerType[i] == DRSGame.PlayerType.PEOPLE){
-                names[i] = "You";
+                playerNames[i] = "You";
             }
             else if(playerType[i] == DRSGame.PlayerType.AI){
-                names[i] = "AI" + cntAI;
+                playerNames[i] = "AI" + cntAI;
                 ++cntAI;
             }
         }
@@ -166,7 +195,7 @@ public class SPlayActivity extends AppCompatActivity {
         //开始游戏
         drsGame = new DRSGame();
         drsGame.doReady(playerType);
-        drsGame.setPlayerNames(names);
+        drsGame.setPlayerNames(playerNames);
         drsGame.doPlay();
     }
 
@@ -177,8 +206,17 @@ public class SPlayActivity extends AppCompatActivity {
         if (hasFocus){
             for(int i=0;i<drsGame.num_players;++i) {
                 for (int j = 0; j < 4; ++j) {
+                    //final int ii=i;
+                    //final int jj=j;
+
                     setAirImage(i, j);
                     image_airs[i][j].setVisibility(ImageView.VISIBLE);
+//                    image_airs[i][j].setOnClickListener(new View.OnClickListener(){
+//                        @Override
+//                        public void onClick(View view) {
+//                            slotClickAir(ii, jj);
+//                        }
+//                    });
                 }
             }
             setButtonEnable();
@@ -197,6 +235,18 @@ public class SPlayActivity extends AppCompatActivity {
             }
         }
     }
+
+    //飞机点击槽函数
+//    public void slotClickAir(int iplayer, int iAir){
+//        if(drsGame.turnState == DRSGame.TurnState.WAIT_AIR && drsGame.cur_player == iplayer){
+//            ArrayList<Integer> airs = drsGame.getCandidateAir(cur_dice);
+//            if(airs.contains(iAir)){
+//                cur_air = iAir;
+//                clickAirTask = new ClickAirTask();
+//                clickAirTask.execute(SPlayActivity.this);
+//            }
+//        }
+//    }
 
     //设置骰子按钮和飞机按钮是否可点击
     public void setButtonEnable(){
@@ -223,6 +273,31 @@ public class SPlayActivity extends AppCompatActivity {
     //设置游戏结束
     public void setGameEnd(){
         //need a game record save
+        try{
+            Calendar c = Calendar.getInstance();
+            c.setTimeInMillis(System.currentTimeMillis());
+            int year = c.get(Calendar.YEAR);
+            int month = c.get(Calendar.MONTH);
+            int day = c.get(Calendar.DAY_OF_MONTH);
+            int hour = c.get(Calendar.HOUR);
+            int minute = c.get(Calendar.MINUTE);
+            int second = c.get(Calendar.SECOND);
+
+            String filename = String.format("record-%d-%d-%d-%d-%d-%d",year,month,day,hour,minute,second);
+            FileOutputStream out = openFileOutput(filename, Context.MODE_PRIVATE);
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
+
+            DRSGame.GameRecord gameRecord = drsGame.gameRecord;
+            for(int i=0;i<4;++i)
+                writer.write(gameRecord.names[i]+"\n");
+            for(int i=0;i<gameRecord.iplayers.size();++i)
+                writer.write(String.format("%d %d %d\n",gameRecord.iplayers.get(i),gameRecord.dices.get(i),gameRecord.iAirs.get(i)));
+
+            writer.close();
+        }
+        catch (IOException e){
+            Log.e("SPlayActivity", "JH:game end IO error!");
+        }
 
         String winner = drsGame.playerNames[drsGame.whoWin()];
         AlertDialog.Builder builder = new AlertDialog.Builder(SPlayActivity.this);
@@ -302,7 +377,8 @@ public class SPlayActivity extends AppCompatActivity {
         }
 
         if(fb){
-            image_dice.setImageResource(dice_id[cur_dice]);
+            if(cur_dice >= 1 && cur_dice <= 6)
+                image_dice.setImageResource(dice_id[cur_dice]);
             image_dice.setVisibility(View.VISIBLE);
         }
         else{
@@ -419,7 +495,8 @@ public class SPlayActivity extends AppCompatActivity {
             SystemClock.sleep(500);
             sPlayActivity = params[0];
 
-            sPlayActivity.cur_dice = sPlayActivity.drsGame.getDice();
+            if(sPlayActivity.cur_dice == -1)
+                sPlayActivity.cur_dice = sPlayActivity.drsGame.getDice();
 
             publishProgress();
             SystemClock.sleep(1500);
