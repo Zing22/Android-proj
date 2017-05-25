@@ -443,7 +443,8 @@ var get_movement_path = function(room_id, chess, isCheated) {
       for (var j = 0; j < 4; j++) {
         // 在同个格子上的棋子
         // room.players[i].chessman[j].status === CHESS_STATUS.FLYING &&
-        if (room.players[i].chessman[j].position === check_pos[k]) {
+        if (room.players[i].chessman[j].status === CHESS_STATUS.FLYING 
+          && room.players[i].chessman[j].position === check_pos[k]) {
           enemy.push(room.players[i].chessman[j]);
           enemy_pair.push([i, j, check_pos[k]]);
           console.log('玩家: '+i, room.players[i].chessman[j]);
