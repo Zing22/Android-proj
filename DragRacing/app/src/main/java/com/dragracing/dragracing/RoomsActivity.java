@@ -28,7 +28,11 @@ import io.socket.emitter.Emitter;
 //联机游戏房间列表界面
 
 public class RoomsActivity extends AppCompatActivity {
+    static public String TAG = "RoomsActivity";
+
     LinearLayout layout_rooms;
+    Button btn_flush;
+    Button btn_newroom;
     Handler handler;
 
     public class MyHandler extends Handler{
@@ -36,14 +40,18 @@ public class RoomsActivity extends AppCompatActivity {
         public MyHandler(Looper l){super(l);}
         @Override
         public void handleMessage(Message msg){
-            Log.i("RoomsActivity", "JH:get msg");
             String msgstr = msg.getData().getString("body");
+            Log.i("RoomsActivity", "JH:get msg "+msgstr);
             if(msgstr == "rooms list"){
                 updateRooms();
             }
+            else if(msgstr == "room enter"){
+                if(Data.isEnter)
+                    joinRoom();
+            }
             super.handleMessage(msg);
         }
-    };
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,8 +61,10 @@ public class RoomsActivity extends AppCompatActivity {
         //handler
         handler = new MyHandler();
 
-        //房间布局句柄
+        //句柄
         layout_rooms = (LinearLayout)this.findViewById(R.id.linear_rooms);
+        btn_newroom = (Button)this.findViewById(R.id.button_newroom);
+        btn_flush = (Button)this.findViewById(R.id.button_flush);
 
         //socket设置
         if(Data.createSocket() == false){
@@ -65,52 +75,36 @@ public class RoomsActivity extends AppCompatActivity {
         Data.socketEmit("random name", "玩家");
         Data.socketEmit("need rooms list", "");
 
-        /*
-        for(int i=0;i<10;++i){
-            LayoutInflater inflater = getLayoutInflater();
-            Button btn = (Button)inflater.inflate(R.layout.button_room, null);
-            Random r = new Random();
-            final int sa=r.nextInt(100);
-            btn.setText("房间" + String.valueOf(sa));
-            btn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent();
-                    intent.setClass(RoomsActivity.this, RoomActivity.class);
-                    Data.setRoom_num(sa);
-                    startActivity(intent);
-                }
-            });
-            ll.addView(btn);
-        }*/
 
-//        Button btn1 = (Button)this.findViewById(R.id.button);
-//        btn1.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent intent = new Intent();
-//                intent.setClass(RoomsActivity.this, RoomActivity.class);
-//                startActivity(intent);
-//            }
-//        });
-//
-//        Button btn_newroom = (Button)this.findViewById(R.id.button_newroom);
-//        final LinearLayout ll = (LinearLayout)this.findViewById(R.id.linear_rooms);
-//        btn_newroom.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Button btn_new = new Button(RoomsActivity.this);
-//                btn_new.setText("new btn");
-//                ll.addView(btn_new);
-//            }
-//        });
+        //按钮事件
+        btn_flush.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Data.socketEmit("rooms list","");
+            }
+        });
+        btn_newroom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Data.room = new Data.Room();
+                Data.room.room_id = Data.mSocket.id();
+                Data.room.name = Data.username+"的房间";
+                try {
+                    Data.socketEmit("create room", new JSONObject(String.format("{username:'%s'}", Data.username)));
+                }
+                catch (JSONException e){
+                    Log.e(TAG, "JH:emit create room error");
+                }
+            }
+        });
     }
 
+    //更新房间列表
     public void updateRooms(){
         layout_rooms.removeAllViews();
 
         for(int i=0;i<Data.rooms.size();++i){
-            Data.Room room = Data.rooms.get(i);
+            final Data.Room room = Data.rooms.get(i);
             Button btn = new Button(this);
             String isPlay;
             if(room.isPlay) isPlay = "游戏中";
@@ -119,7 +113,16 @@ public class RoomsActivity extends AppCompatActivity {
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    //Data.socketEmit("join room", ???);
+                    if(room.players == 4) return;
+                    if(room.isPlay) return;
+
+                    Data.room = room;
+                    try{
+                        Data.socketEmit("join room", new JSONObject(String.format("{room_id:'%s',username:'%s'}", room.room_id, Data.username)));
+                    }
+                    catch (JSONException e){
+                        Log.e(TAG, "JH:emit create room error");
+                    }
                 }
             });
 
@@ -127,10 +130,14 @@ public class RoomsActivity extends AppCompatActivity {
         }
     }
 
+    //进入房间
     public void joinRoom(){
-
+        Intent intent = new Intent();
+        intent.setClass(RoomsActivity.this, RoomActivity.class);
+        startActivity(intent);
     }
 
+    //网络连接失败退出
     public void exitSocketError(String error){
         AlertDialog.Builder builder = new AlertDialog.Builder(RoomsActivity.this);
         builder.setTitle("Error");
@@ -163,12 +170,11 @@ public class RoomsActivity extends AppCompatActivity {
                 JSONObject data = (JSONObject) args[0];
                 try{
                     Data.username = data.getString("new_name");
+                    handler.sendMessage(makeMsg("new username"));
                 }
                 catch (JSONException e){
-                    Log.e("Data", "JH:on new username error");
+                    Log.e(TAG, "JH:on new username error");
                 }
-
-                handler.sendMessage(makeMsg("new username"));
             }
         });
 
@@ -176,6 +182,7 @@ public class RoomsActivity extends AppCompatActivity {
             @Override
             public void call(Object... args) {
                 JSONObject data = (JSONObject) args[0];
+                Log.i(TAG, "JH:"+data.toString());
                 try{
                     Data.rooms.clear();
 
@@ -190,15 +197,29 @@ public class RoomsActivity extends AppCompatActivity {
                             if(playersObject.getJSONObject(i).has("user_id"))
                                 ++room.players;
                         room.isPlay = roomObject.getBoolean("gaming");
+                        room.room_id = roomObject.getString("id");
 
                         Data.rooms.add(room);
                     }
+                    handler.sendMessage(makeMsg("rooms list"));
                 }
                 catch (JSONException e){
-                    Log.e("Data", "JH:on rooms list error");
+                    Log.e(TAG, "JH:on rooms list error");
                 }
+            }
+        });
 
-                handler.sendMessage(makeMsg("rooms list"));
+        mSocket.on("room enter", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                Object data = args[0];
+                Log.i(TAG, "JH:"+data.toString());
+                if(data.toString() == "true")
+                    Data.isEnter = true;
+                else
+                    Data.isEnter = false;
+
+                handler.sendMessage(makeMsg("room enter"));
             }
         });
     }
@@ -209,6 +230,7 @@ public class RoomsActivity extends AppCompatActivity {
 
         mSocket.off("new username");
         mSocket.off("rooms list");
+        mSocket.off("room enter");
     }
 
     //创建msg

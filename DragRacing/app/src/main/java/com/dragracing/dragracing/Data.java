@@ -21,15 +21,19 @@ public class Data {
     public static int room_num = 0;//进入的房间号
     public static Socket mSocket;//socket
 
-    //获取的数据
+    //数据
     public static String username;//用户名
-    public static ArrayList<Room> rooms=new ArrayList<>();
+    public static ArrayList<Room> rooms=new ArrayList<>();//房间列表
+    public static Boolean isEnter;//是否进入房间
+    public static Room room;//进入的房间
+    public static String[] playerNames = new String[4];
 
     //房间class
     static public class Room{
         public String name;//房间名
         public int players;//玩家数
         public boolean isPlay;//是否已开始游戏
+        public String room_id;//房间id
 
         public Room(){}
     }
