@@ -1,11 +1,15 @@
 package com.dragracing.dragracing;
 
+import android.os.SystemClock;
 import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -14,22 +18,20 @@ import io.socket.emitter.Emitter;
 //全局数据结构体
 
 public class Data {
-    private static int room_num = 0;//进入的房间号
-    private static Socket mSocket;//socket
+    public static int room_num = 0;//进入的房间号
+    public static Socket mSocket;//socket
 
-    private static String username;//用户名
+    //获取的数据
+    public static String username;//用户名
+    public static ArrayList<Room> rooms=new ArrayList<>();
 
-    public static String getUsername() {
-        return username;
-    }
-    public static void setUsername(String username) {
-        Data.username = username;
-    }
-    public static int getRoom_num() {
-        return room_num;
-    }
-    public static void setRoom_num(int room_num) {
-        Data.room_num = room_num;
+    //房间class
+    static public class Room{
+        public String name;//房间名
+        public int players;//玩家数
+        public boolean isPlay;//是否已开始游戏
+
+        public Room(){}
     }
 
     //创建socket
@@ -43,23 +45,6 @@ public class Data {
             return false;
         }
 
-        mSocket.on("new username", new Emitter.Listener(){
-            @Override
-            public void call(Object... args){
-                JSONObject data = (JSONObject) args[0];
-                try{
-                    username = data.getString("new_name");
-                }
-                catch (JSONException e){
-                    Log.e("Data", "JH:on new username error");
-                    return;
-                }
-                Log.i("Data", "JH:get username " + username);
-
-                mSocket.disconnect();//
-            }
-        });
-
         mSocket.connect();
 
         Log.i("Data", "JH:connect success!");
@@ -67,10 +52,13 @@ public class Data {
         return true;
     }
 
-    //获取random name
-    public static void emitRandomName(){
-        Log.i("Data", "JH:emit random name");
-        mSocket.emit("random name", "玩家");
+    //关闭socket
+    public static void closeSocket(){
+        mSocket.disconnect();
     }
 
+    public static void socketEmit(String title, Object body){
+        Log.i("Data", "JH:emit " + title);
+        mSocket.emit(title, body);
+    }
 }

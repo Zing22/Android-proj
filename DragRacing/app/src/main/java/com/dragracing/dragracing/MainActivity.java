@@ -76,7 +76,8 @@ public class MainActivity extends AppCompatActivity {
         btn3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Boolean fa = Data.createSocket();
+                //Boolean fa = Data.createSocket();
+                Boolean fa = false;
                 if(!fa){
                     Toast.makeText(MainActivity.this, "Connect failed!", Toast.LENGTH_SHORT).show();
                 }
@@ -84,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(MainActivity.this, "Connect success!", Toast.LENGTH_SHORT).show();
                 }
 
-                Data.emitRandomName();
+                //Data.emitRandomName();
             }
         });
     }

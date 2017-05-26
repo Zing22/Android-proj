@@ -21,7 +21,7 @@ public class DRSGame {
     public int INBEGPOS = 50;//内部直路第一个点
     public int INENDPOS = 54;//内部直路最后一个点
     public int FLYPOS = 17;//可以飞的那个点
-    public int FLYTOPOS = 29;//飞到的那个点
+    public int FLYTOPOS = 29;//飞到6的那个点
     public int FLYCRUSHPOS = 52;//飞的时候可以撞的那个点
 
     //一些飞机的状态

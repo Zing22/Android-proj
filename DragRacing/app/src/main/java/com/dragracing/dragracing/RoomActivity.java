@@ -18,7 +18,7 @@ public class RoomActivity extends AppCompatActivity {
         setContentView(R.layout.activity_room);
 
         //设置房间名字
-        setTitle("房间"+String.valueOf(Data.getRoom_num()));
+        setTitle("房间"+String.valueOf(Data.room_num));
 
         //开始游戏按钮
         Button btn_beggame = (Button)this.findViewById(R.id.button_beggame);
