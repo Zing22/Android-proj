@@ -34,6 +34,7 @@ public class RoomsActivity extends AppCompatActivity {
     Button btn_flush;
     Button btn_newroom;
     Handler handler;
+    boolean isSocketOn=false;
 
     public class MyHandler extends Handler{
         public MyHandler(){}
@@ -132,6 +133,7 @@ public class RoomsActivity extends AppCompatActivity {
 
     //进入房间
     public void joinRoom(){
+        setSocketOff();
         Intent intent = new Intent();
         intent.setClass(RoomsActivity.this, RoomActivity.class);
         startActivity(intent);
@@ -160,8 +162,17 @@ public class RoomsActivity extends AppCompatActivity {
         Data.closeSocket();
     }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+        setSocketOn();
+    }
+
+
     //设置socket监听
     public void setSocketOn(){
+        if(isSocketOn) return;
+
         Socket mSocket = Data.mSocket;
 
         mSocket.on("new username", new Emitter.Listener(){
@@ -222,15 +233,21 @@ public class RoomsActivity extends AppCompatActivity {
                 handler.sendMessage(makeMsg("room enter"));
             }
         });
+
+        isSocketOn = true;
     }
 
     //关闭socket监听
     public void setSocketOff(){
+        if(isSocketOn == false) return;
+
         Socket mSocket = Data.mSocket;
 
         mSocket.off("new username");
         mSocket.off("rooms list");
         mSocket.off("room enter");
+
+        isSocketOn = false;
     }
 
     //创建msg
