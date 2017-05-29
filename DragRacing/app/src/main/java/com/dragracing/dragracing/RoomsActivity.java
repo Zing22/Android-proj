@@ -181,6 +181,7 @@ public class RoomsActivity extends AppCompatActivity {
                 JSONObject data = (JSONObject) args[0];
                 try{
                     Data.username = data.getString("new_name");
+                    Data.user_id = data.getString("user_id");
                     handler.sendMessage(makeMsg("new username"));
                 }
                 catch (JSONException e){

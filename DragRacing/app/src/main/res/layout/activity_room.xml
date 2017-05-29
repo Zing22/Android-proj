@@ -52,14 +52,20 @@
         android:layout_height="0dp"
         android:layout_weight="0.2">
 
-        <TextView
-            android:text="我是聊天框"
+        <ScrollView
             android:layout_width="0dp"
-            android:id="@+id/textview_chat_room"
-            android:textSize="24sp"
-            android:gravity="center_vertical"
             android:layout_height="match_parent"
-            android:layout_weight="5" />
+            android:layout_weight="5"
+            android:background="@layout/myborder">
+
+            <TextView
+                android:text=""
+                android:layout_width="match_parent"
+                android:id="@+id/textview_chat_room"
+                android:textSize="12sp"
+                android:gravity="center_vertical"
+                android:layout_height="match_parent" />
+        </ScrollView>
 
         <Button
             android:text="发送消息"

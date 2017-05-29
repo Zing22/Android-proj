@@ -22,11 +22,13 @@ public class Data {
 
     //数据
     public static String username;//用户名
+    public static String user_id;//用户id
     public static ArrayList<Room> rooms=new ArrayList<>();//房间列表
     public static Boolean isEnter;//是否进入房间
     public static Room room;//进入的房间
     public static JSONArray playerInfo;//玩家信息
     public static String addAIinfo;//添加AI时的异常消息
+    public static String chatMsg;//消息
 
     //房间class
     static public class Room{
