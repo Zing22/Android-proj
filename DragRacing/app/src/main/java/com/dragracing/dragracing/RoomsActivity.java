@@ -43,10 +43,10 @@ public class RoomsActivity extends AppCompatActivity {
         public void handleMessage(Message msg){
             String msgstr = msg.getData().getString("body");
             Log.i("RoomsActivity", "JH:get msg "+msgstr);
-            if(msgstr == "rooms list"){
+            if(msgstr.equals("rooms list")){
                 updateRooms();
             }
-            else if(msgstr == "room enter"){
+            else if(msgstr.equals("room enter")){
                 if(Data.isEnter)
                     joinRoom();
             }
@@ -81,7 +81,7 @@ public class RoomsActivity extends AppCompatActivity {
         btn_flush.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Data.socketEmit("rooms list","");
+                Data.socketEmit("need rooms list","");
             }
         });
         btn_newroom.setOnClickListener(new View.OnClickListener() {
@@ -224,8 +224,8 @@ public class RoomsActivity extends AppCompatActivity {
             @Override
             public void call(Object... args) {
                 Object data = args[0];
-                Log.i(TAG, "JH:"+data.toString());
-                if(data.toString() == "true")
+                //Log.i(TAG, "JH:"+data.toString());
+                if(data.toString().equals("true"))
                     Data.isEnter = true;
                 else
                     Data.isEnter = false;

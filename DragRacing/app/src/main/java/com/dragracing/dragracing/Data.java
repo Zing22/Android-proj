@@ -18,7 +18,6 @@ import io.socket.emitter.Emitter;
 //全局数据结构体
 
 public class Data {
-    public static int room_num = 0;//进入的房间号
     public static Socket mSocket;//socket
 
     //数据
@@ -26,7 +25,8 @@ public class Data {
     public static ArrayList<Room> rooms=new ArrayList<>();//房间列表
     public static Boolean isEnter;//是否进入房间
     public static Room room;//进入的房间
-    public static String[] playerNames = new String[4];
+    public static JSONArray playerInfo;//玩家信息
+    public static String addAIinfo;//添加AI时的异常消息
 
     //房间class
     static public class Room{

@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -29,6 +30,7 @@ public class RoomActivity extends AppCompatActivity {
     Handler handler;
 
     Button btn_gameready;
+    Button btn_addAI;
     Button btn_sendmsg;
     Button[] btn_pos;
     int[] btn_posid = {R.id.button1_room,R.id.button2_room,R.id.button3_room,R.id.button4_room};
@@ -41,8 +43,13 @@ public class RoomActivity extends AppCompatActivity {
             String msgstr = msg.getData().getString("body");
             Log.i(TAG, "JH:get msg "+msgstr);
 
-            if(msgstr == "players info"){
+            if(msgstr.equals("players info")){
                 updatePlayersInfo();
+                updateButtonAddAI();
+                updateButtonGameready();
+            }
+            else if(msgstr.equals("add AI response")){
+                alertAddAI();
             }
 
             super.handleMessage(msg);
@@ -59,6 +66,7 @@ public class RoomActivity extends AppCompatActivity {
 
         //句柄
         btn_gameready = (Button)this.findViewById(R.id.button_gameready);
+        btn_addAI = (Button)this.findViewById(R.id.button_addAI);
         btn_sendmsg = (Button)this.findViewById(R.id.button_sendmsg_room);
         btn_pos = new Button[4];
         for(int i=0;i<4;++i)
@@ -72,7 +80,23 @@ public class RoomActivity extends AppCompatActivity {
         setTitle(Data.room.name);
 
         //按钮事件
-
+        //AI按钮
+        btn_addAI.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Data.socketEmit("add AI", "");
+            }
+        });
+        //准备按钮
+        btn_gameready.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(isHomer())
+                    Data.socketEmit("wanna start game", "");
+                else
+                    Data.socketEmit("set ready", "");
+            }
+        });
 
         /*
         //开始游戏按钮
@@ -100,10 +124,82 @@ public class RoomActivity extends AppCompatActivity {
         });*/
     }
 
+    public void alertAddAI(){
+        if(Data.addAIinfo.equals("room full"))
+            Toast.makeText(RoomActivity.this, "没位置啦", Toast.LENGTH_SHORT).show();
+        else if(Data.addAIinfo.equals("not host"))
+            Toast.makeText(RoomActivity.this, "你不是房主啦", Toast.LENGTH_SHORT).show();
+    }
+
     public void updatePlayersInfo(){
-        for(int i=0;i<4;++i){
-            btn_pos[i].setText(Data.playerNames[i]);
+        try{
+            for(int i=0;i<4;++i){
+                JSONObject player = Data.playerInfo.getJSONObject(i);
+                if(player.has("empty")){
+                    btn_pos[i].setText("empty");
+                }
+                else{
+                    btn_pos[i].setText(player.getString("username"));
+                }
+            }
         }
+        catch (JSONException e){
+            Log.e(TAG, "JH:update player info error");
+        }
+    }
+
+    public void updateButtonAddAI(){
+        if(isHomer())
+            btn_addAI.setEnabled(true);
+        else
+            btn_addAI.setEnabled(false);
+    }
+
+    public void updateButtonGameready(){
+        btn_gameready.setEnabled(true);
+        if(isHomer())
+            btn_gameready.setText("开始游戏");
+        else{
+            if(isReady())
+                btn_gameready.setText("取消准备");
+            else
+                btn_gameready.setText("准备");
+        }
+    }
+
+    public boolean isHomer(){
+        return Data.room.room_id.equals(Data.mSocket.id());
+//        try{
+//            for(int i=0;i<4;++i){
+//                JSONObject player = Data.playerInfo.getJSONObject(i);
+//                if(player.has("empty"))
+//                    continue;
+//                if(player.getString("user_id").equals(Data.mSocket.id()))
+//                    return player.getString("host").equals("true");
+//            }
+//            Log.e(TAG, "not found myself in isHomer");
+//        }
+//        catch (JSONException e){
+//            Log.e(TAG, "isHomer error");
+//        }
+//        return false;
+    }
+
+    public boolean isReady(){
+        try{
+            for(int i=0;i<4;++i){
+                JSONObject player = Data.playerInfo.getJSONObject(i);
+                if(player.has("empty"))
+                    continue;
+                if(player.getString("user_id").equals(Data.mSocket.id()))
+                    return player.getString("ready").equals("true");
+            }
+            Log.e(TAG, "not found myself in isReady");
+        }
+        catch (JSONException e){
+            Log.e(TAG, "isReady error");
+        }
+        return false;
     }
 
     @Override
@@ -120,24 +216,17 @@ public class RoomActivity extends AppCompatActivity {
         mSocket.on("players info", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
-                JSONArray data = (JSONArray) args[0];
-                Log.i(TAG, "JH:"+data.toString());
+                Data.playerInfo = (JSONArray) args[0];
+                Log.i(TAG, "JH:"+Data.playerInfo.toString());
+                handler.sendMessage(makeMsg("players info"));
+            }
+        });
 
-                try {
-                    for(int i=0;i<4;++i){
-                        JSONObject player = data.getJSONObject(i);
-                        if(player.has("empty")){
-                            Data.playerNames[i] = "empty";
-                        }
-                        else{
-                            Data.playerNames[i] = player.getString("username");
-                        }
-                    }
-                    handler.sendMessage(makeMsg("players info"));
-                }
-                catch (JSONException e){
-                    Log.e(TAG, "JH:on players info error");
-                }
+        mSocket.on("add AI response", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                Data.addAIinfo = (String) args[0];
+                handler.sendMessage(makeMsg("add AI response"));
             }
         });
     }
@@ -147,6 +236,7 @@ public class RoomActivity extends AppCompatActivity {
         Socket mSocket = Data.mSocket;
 
         mSocket.off("players info");
+        mSocket.off("add AI response");
     }
 
     //创建msg
