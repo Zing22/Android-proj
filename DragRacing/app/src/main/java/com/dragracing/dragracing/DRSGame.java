@@ -218,17 +218,7 @@ public class DRSGame {
                     res = merge(res, res1);
                 }
 
-                if(isJump(pos)){//跳
-                    StepEvent res1 = makeJumpEvent(cur_player, pos);
-                    res = merge(res, res1);
-                    pos += 4;
-                    if(isFly(pos)){
-                        StepEvent res2 = makeFlyEvent(cur_player, pos);
-                        res = merge(res, res2);
-                        pos = FLYTOPOS;
-                    }
-                }
-                else if(isFly(pos)){//飞
+                if(isFly(pos)){//飞
                     StepEvent res1 = makeFlyEvent(cur_player, pos);
                     res = merge(res, res1);
                     pos = FLYTOPOS;
@@ -236,6 +226,16 @@ public class DRSGame {
                         StepEvent res2 = makeJumpEvent(cur_player, pos);
                         res = merge(res, res2);
                         pos += 4;
+                    }
+                }
+                else if(isJump(pos)){//跳
+                    StepEvent res1 = makeJumpEvent(cur_player, pos);
+                    res = merge(res, res1);
+                    pos += 4;
+                    if(isFly(pos)){
+                        StepEvent res2 = makeFlyEvent(cur_player, pos);
+                        res = merge(res, res2);
+                        pos = FLYTOPOS;
                     }
                 }
 
@@ -275,6 +275,8 @@ public class DRSGame {
         playerNames = names;
 
         String[] names2 = new String[4];
+        for(int i=0;i<4;++i)
+            names2[i] = "";
         for(int i=0;i<num_players;++i){
             names2[playerPos[i]] = playerNames[i];
         }

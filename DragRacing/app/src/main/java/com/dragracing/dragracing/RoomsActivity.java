@@ -19,6 +19,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Iterator;
 import java.util.Random;
 
@@ -98,6 +102,15 @@ public class RoomsActivity extends AppCompatActivity {
                 }
             }
         });
+
+        //名字
+        try {
+            FileInputStream in = openFileInput("setting.txt");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            Data.username = reader.readLine();
+        }catch (IOException e) {
+            Log.e(TAG, "JH:file setting read error!");
+        }
     }
 
     //更新房间列表
@@ -111,6 +124,7 @@ public class RoomsActivity extends AppCompatActivity {
             if(room.isPlay) isPlay = "游戏中";
             else isPlay = "准备中";
             btn.setText(String.format("%s[%d/4][%s]",room.name,room.players,isPlay));
+            btn.setAllCaps(false);
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -180,7 +194,7 @@ public class RoomsActivity extends AppCompatActivity {
             public void call(Object... args){
                 JSONObject data = (JSONObject) args[0];
                 try{
-                    Data.username = data.getString("new_name");
+                    //Data.username = data.getString("new_name");
                     Data.user_id = data.getString("user_id");
                     handler.sendMessage(makeMsg("new username"));
                 }

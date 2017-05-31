@@ -152,6 +152,7 @@ public class RoomActivity extends AppCompatActivity {
     }
 
     public void gameStart(){
+        setSocketOff();
         Intent intent = new Intent();
         intent.setClass(RoomActivity.this, PlayActivity.class);
         startActivity(intent);

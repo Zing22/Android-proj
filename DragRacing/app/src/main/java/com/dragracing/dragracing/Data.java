@@ -29,6 +29,8 @@ public class Data {
     public static JSONArray playerInfo;//玩家信息
     public static String addAIinfo;//添加AI时的异常消息
     public static String chatMsg;//消息
+    public static int dice;//骰子
+    public static int iAir;//选择的飞机
 
     //房间class
     static public class Room{

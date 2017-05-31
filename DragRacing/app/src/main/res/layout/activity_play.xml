@@ -10,34 +10,269 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:weightSum="1">
+        android:layout_height="match_parent">
 
-        <ImageView
+        <FrameLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.86"
-            app:srcCompat="@drawable/game_board"/>
+            android:layout_weight="0.5"
+            android:id="@+id/layout_airs_play"
+            android:background="@drawable/game_board">
 
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.03" />
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/dicex"
+                android:background="@android:color/transparent"
+                android:layout_gravity="center"
+                android:visibility="invisible"
+                android:id="@+id/imageButton_dice_play" />
 
-        <TextView
-            android:text="我是聊天框"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/textView7"
-            android:layout_weight="0.08"
-            android:gravity="center_vertical|center_horizontal" />
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/dice1"
+                android:layout_gravity="center"
+                android:visibility="invisible"
+                android:id="@+id/image_dice_play" />
 
-        <EditText
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/paperplaneg"
+                android:scaleX="@string/image_air_scaleX"
+                android:scaleY="@string/image_air_scaleY"
+                android:id="@+id/air_1_1_play"
+                android:visibility="visible"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/paperplaneg"
+                android:scaleX="@string/image_air_scaleX"
+                android:scaleY="@string/image_air_scaleY"
+                android:id="@+id/air_1_2_play"
+                android:visibility="invisible"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/paperplaneg"
+                android:scaleX="@string/image_air_scaleX"
+                android:scaleY="@string/image_air_scaleY"
+                android:id="@+id/air_1_3_play"
+                android:visibility="invisible"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/paperplaneg"
+                android:scaleX="@string/image_air_scaleX"
+                android:scaleY="@string/image_air_scaleY"
+                android:id="@+id/air_1_4_play"
+                android:visibility="invisible"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/paperplaner"
+                android:scaleX="@string/image_air_scaleX"
+                android:scaleY="@string/image_air_scaleY"
+                android:id="@+id/air_2_1_play"
+                android:visibility="invisible"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/paperplaner"
+                android:scaleX="@string/image_air_scaleX"
+                android:scaleY="@string/image_air_scaleY"
+                android:id="@+id/air_2_2_play"
+                android:visibility="invisible"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/paperplaner"
+                android:scaleX="@string/image_air_scaleX"
+                android:scaleY="@string/image_air_scaleY"
+                android:id="@+id/air_2_3_play"
+                android:visibility="invisible"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/paperplaner"
+                android:scaleX="@string/image_air_scaleX"
+                android:scaleY="@string/image_air_scaleY"
+                android:id="@+id/air_2_4_play"
+                android:visibility="invisible"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/paperplaneb"
+                android:scaleX="@string/image_air_scaleX"
+                android:scaleY="@string/image_air_scaleY"
+                android:id="@+id/air_3_1_play"
+                android:visibility="invisible"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/paperplaneb"
+                android:scaleX="@string/image_air_scaleX"
+                android:scaleY="@string/image_air_scaleY"
+                android:id="@+id/air_3_2_play"
+                android:visibility="invisible"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/paperplaneb"
+                android:scaleX="@string/image_air_scaleX"
+                android:scaleY="@string/image_air_scaleY"
+                android:id="@+id/air_3_3_play"
+                android:visibility="invisible"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/paperplaneb"
+                android:scaleX="@string/image_air_scaleX"
+                android:scaleY="@string/image_air_scaleY"
+                android:id="@+id/air_3_4_play"
+                android:visibility="invisible"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/paperplaney"
+                android:scaleX="@string/image_air_scaleX"
+                android:scaleY="@string/image_air_scaleY"
+                android:id="@+id/air_4_1_play"
+                android:visibility="invisible"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/paperplaney"
+                android:scaleX="@string/image_air_scaleX"
+                android:scaleY="@string/image_air_scaleY"
+                android:id="@+id/air_4_2_play"
+                android:visibility="invisible"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/paperplaney"
+                android:scaleX="@string/image_air_scaleX"
+                android:scaleY="@string/image_air_scaleY"
+                android:id="@+id/air_4_3_play"
+                android:visibility="invisible"/>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/paperplaney"
+                android:scaleX="@string/image_air_scaleX"
+                android:scaleY="@string/image_air_scaleY"
+                android:id="@+id/air_4_4_play"
+                android:visibility="invisible"/>
+
+            <!--com.cunoraz.gifview.library.GifView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:gif="@drawable/waiting"/-->
+
+        </FrameLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textPersonName"
-            android:text="我是输入框"
-            android:ems="10"
-            android:id="@+id/editText2" />
+            android:layout_height="0dp"
+            android:layout_weight="0.1">
+
+            <ScrollView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="5"
+                android:id="@+id/scrollView_chat_play"
+                android:background="@layout/myborder">
+
+                <TextView
+                    android:text=""
+                    android:layout_width="match_parent"
+                    android:id="@+id/textview_chat_play"
+                    android:textSize="12sp"
+                    android:gravity="center_vertical"
+                    android:layout_height="match_parent" />
+            </ScrollView>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+                <Button
+                    android:text="发送消息"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:textSize="8sp"
+                    android:id="@+id/button_sendmsg_play"
+                    android:layout_weight="1" />
+
+                <Button
+                    android:text="托管"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:textSize="8sp"
+                    android:id="@+id/button_tuoguan_play"
+                    android:layout_weight="1" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.1">
+
+            <Button
+                android:text="飞机1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/button_air1_play"
+                android:layout_weight="1"
+                android:enabled="false"/>
+
+            <Button
+                android:text="飞机2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/button_air2_play"
+                android:layout_weight="1"
+                android:enabled="false" />
+
+            <Button
+                android:text="飞机3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/button_air3_play"
+                android:layout_weight="1"
+                android:enabled="false" />
+
+            <Button
+                android:text="飞机4"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/button_air4_play"
+                android:layout_weight="1"
+                android:enabled="false" />
+        </LinearLayout>
     </LinearLayout>
 </RelativeLayout>

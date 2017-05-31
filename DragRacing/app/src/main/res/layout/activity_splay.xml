@@ -23,7 +23,7 @@
             <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/dice1"
+                app:srcCompat="@drawable/dicex"
                 android:background="@android:color/transparent"
                 android:layout_gravity="center"
                 android:visibility="invisible"
@@ -40,7 +40,7 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/paperplane"
+                app:srcCompat="@drawable/paperplaneg"
                 android:scaleX="@string/image_air_scaleX"
                 android:scaleY="@string/image_air_scaleY"
                 android:id="@+id/air_1_1_splay"
@@ -49,7 +49,7 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/paperplane"
+                app:srcCompat="@drawable/paperplaneg"
                 android:scaleX="@string/image_air_scaleX"
                 android:scaleY="@string/image_air_scaleY"
                 android:id="@+id/air_1_2_splay"
@@ -58,7 +58,7 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/paperplane"
+                app:srcCompat="@drawable/paperplaneg"
                 android:scaleX="@string/image_air_scaleX"
                 android:scaleY="@string/image_air_scaleY"
                 android:id="@+id/air_1_3_splay"
@@ -67,7 +67,7 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/paperplane"
+                app:srcCompat="@drawable/paperplaneg"
                 android:scaleX="@string/image_air_scaleX"
                 android:scaleY="@string/image_air_scaleY"
                 android:id="@+id/air_1_4_splay"
@@ -76,7 +76,7 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/paperplane"
+                app:srcCompat="@drawable/paperplaner"
                 android:scaleX="@string/image_air_scaleX"
                 android:scaleY="@string/image_air_scaleY"
                 android:id="@+id/air_2_1_splay"
@@ -85,7 +85,7 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/paperplane"
+                app:srcCompat="@drawable/paperplaner"
                 android:scaleX="@string/image_air_scaleX"
                 android:scaleY="@string/image_air_scaleY"
                 android:id="@+id/air_2_2_splay"
@@ -94,7 +94,7 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/paperplane"
+                app:srcCompat="@drawable/paperplaner"
                 android:scaleX="@string/image_air_scaleX"
                 android:scaleY="@string/image_air_scaleY"
                 android:id="@+id/air_2_3_splay"
@@ -103,7 +103,7 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/paperplane"
+                app:srcCompat="@drawable/paperplaner"
                 android:scaleX="@string/image_air_scaleX"
                 android:scaleY="@string/image_air_scaleY"
                 android:id="@+id/air_2_4_splay"
@@ -112,7 +112,7 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/paperplane"
+                app:srcCompat="@drawable/paperplaneb"
                 android:scaleX="@string/image_air_scaleX"
                 android:scaleY="@string/image_air_scaleY"
                 android:id="@+id/air_3_1_splay"
@@ -121,7 +121,7 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/paperplane"
+                app:srcCompat="@drawable/paperplaneb"
                 android:scaleX="@string/image_air_scaleX"
                 android:scaleY="@string/image_air_scaleY"
                 android:id="@+id/air_3_2_splay"
@@ -130,7 +130,7 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/paperplane"
+                app:srcCompat="@drawable/paperplaneb"
                 android:scaleX="@string/image_air_scaleX"
                 android:scaleY="@string/image_air_scaleY"
                 android:id="@+id/air_3_3_splay"
@@ -139,7 +139,7 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/paperplane"
+                app:srcCompat="@drawable/paperplaneb"
                 android:scaleX="@string/image_air_scaleX"
                 android:scaleY="@string/image_air_scaleY"
                 android:id="@+id/air_3_4_splay"
@@ -148,7 +148,7 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/paperplane"
+                app:srcCompat="@drawable/paperplaney"
                 android:scaleX="@string/image_air_scaleX"
                 android:scaleY="@string/image_air_scaleY"
                 android:id="@+id/air_4_1_splay"
@@ -157,7 +157,7 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/paperplane"
+                app:srcCompat="@drawable/paperplaney"
                 android:scaleX="@string/image_air_scaleX"
                 android:scaleY="@string/image_air_scaleY"
                 android:id="@+id/air_4_2_splay"
@@ -166,7 +166,7 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/paperplane"
+                app:srcCompat="@drawable/paperplaney"
                 android:scaleX="@string/image_air_scaleX"
                 android:scaleY="@string/image_air_scaleY"
                 android:id="@+id/air_4_3_splay"
@@ -175,7 +175,7 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/paperplane"
+                app:srcCompat="@drawable/paperplaney"
                 android:scaleX="@string/image_air_scaleX"
                 android:scaleY="@string/image_air_scaleY"
                 android:id="@+id/air_4_4_splay"
